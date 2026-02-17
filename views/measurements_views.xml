@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- Tree View -->
+        <record id="view_measurements_tree" model="ir.ui.view">
+            <field name="name">patient.measurements.tree</field>
+            <field name="model">patient.measurements</field>
+            <field name="arch" type="xml">
+                <list string="Measurements">
+                    <field name="timestamp"/>
+                    <field name="value"/>
+                    <field name="is_anomaly"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_measurements_form" model="ir.ui.view">
+            <field name="name">patient.measurements.form</field>
+            <field name="model">patient.measurements</field>
+            <field name="arch" type="xml">
+                <form string="Measurement">
+                    <sheet>
+                        <group>
+                            <group string="Measurement Information">
+                                <field name="timestamp"/>
+                                <field name="value"/>
+                                <field name="is_anomaly"/>
+                                <field name="logs"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_measurements_search" model="ir.ui.view">
+            <field name="name">patient.measurements.search</field>
+            <field name="model">patient.measurements</field>
+            <field name="arch" type="xml">
+                <search string="Search Measurements">
+                    <field name="timestamp"/>
+                    <field name="value"/>
+                    <filter string="Anomalies" name="anomalies" domain="[('is_anomaly', '=', True)]"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="action_measurements" model="ir.actions.act_window">
+            <field name="name">Measurements</field>
+            <field name="res_model">patient.measurements</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new measurement record
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu Items -->
+        <menuitem id="menu_measurements_root" 
+                  name="Measurements" 
+                  sequence="40"/>
+        
+        <menuitem id="menu_measurements_main" 
+                  name="Patient Measurements" 
+                  parent="menu_measurements_root" 
+                  action="action_measurements" 
+                  sequence="10"/>
+
+    </data>
+</odoo>
