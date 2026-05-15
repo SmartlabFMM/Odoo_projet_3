@@ -1,0 +1,34 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Odoo 19 PFE",
+            "type": "debugpy",
+            "request": "launch",
+            "python": "/home/bratoukha/odoo_pfe/venv/bin/python3",
+            "pythonPath": "/home/bratoukha/odoo_pfe/venv/bin/python3",
+            "program": "/home/bratoukha/odoo_pfe/odoo-server/odoo-bin",
+            "console": "integratedTerminal",
+            "cwd": "/home/bratoukha/odoo_pfe/odoo-server",
+            "env": {
+                "PYTHONPATH": "/home/bratoukha/odoo_pfe/odoo-server"
+            },
+            "args": [
+                "--addons-path",
+                "/home/bratoukha/odoo_pfe/odoo-server/addons,/home/bratoukha/PFE",
+                "--database",
+                "medical_ai_db",
+                "--db_host",
+                "127.0.0.1",
+                "--db_port",
+                "5433",
+                "--db_user",
+                "odoo_pfe",
+                "--db_password",
+                "admin",
+                "--dev",
+                "all"
+            ]
+        }
+    ]
+}

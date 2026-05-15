@@ -1,75 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        
-        <!-- Tree View -->
-        <record id="view_measurements_tree" model="ir.ui.view">
-            <field name="name">patient.measurements.tree</field>
-            <field name="model">patient.measurements</field>
-            <field name="arch" type="xml">
-                <list string="Measurements">
-                    <field name="timestamp"/>
-                    <field name="value"/>
-                    <field name="is_anomaly"/>
-                </list>
-            </field>
-        </record>
+    <record id="view_measurement_tree" model="ir.ui.view">
+        <field name="name">patient.monitoring.measurement.tree</field>
+        <field name="model">patient.monitoring.measurement</field>
+        <field name="arch" type="xml">
+            <list string="Measurements" decoration-danger="has_anomaly" create="0">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="measurement_date"/>
+                <field name="heart_rate" string="HR (bpm)"/>
+                <field name="oxygen_saturation" string="O2 (%)"/>
+                <field name="respiratory_rate" string="Resp (/min)"/>
+                <field name="temperature" string="Temp (°C)"/>
+                <field name="has_anomaly" widget="boolean_toggle" string="Anomaly"/>
+                <field name="recorded_by"/>
+            </list>
+        </field>
+    </record>
 
-        <!-- Form View -->
-        <record id="view_measurements_form" model="ir.ui.view">
-            <field name="name">patient.measurements.form</field>
-            <field name="model">patient.measurements</field>
-            <field name="arch" type="xml">
-                <form string="Measurement">
-                    <sheet>
-                        <group>
-                            <group string="Measurement Information">
-                                <field name="timestamp"/>
-                                <field name="value"/>
-                                <field name="is_anomaly"/>
-                                <field name="logs"/>
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+    <record id="view_measurement_graph" model="ir.ui.view">
+        <field name="name">patient.monitoring.measurement.graph</field>
+        <field name="model">patient.monitoring.measurement</field>
+        <field name="arch" type="xml">
+            <graph string="Measurements" type="line">
+                <field name="measurement_date" type="row"/>
+                <field name="heart_rate" type="measure"/>
+            </graph>
+        </field>
+    </record>
 
-        <!-- Search View -->
-        <record id="view_measurements_search" model="ir.ui.view">
-            <field name="name">patient.measurements.search</field>
-            <field name="model">patient.measurements</field>
-            <field name="arch" type="xml">
-                <search string="Search Measurements">
-                    <field name="timestamp"/>
-                    <field name="value"/>
-                    <filter string="Anomalies" name="anomalies" domain="[('is_anomaly', '=', True)]"/>
-                </search>
-            </field>
-        </record>
+    <record id="view_measurement_search" model="ir.ui.view">
+        <field name="name">patient.monitoring.measurement.search</field>
+        <field name="model">patient.monitoring.measurement</field>
+        <field name="arch" type="xml">
+            <search string="Search Measurements">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="recorded_by"/>
+                <filter name="anomaly" string="With Anomaly" domain="[('has_anomaly','=',True)]"/>
+                <filter name="group_patient" string="Patient" context="{'group_by':'patient_id'}"/>
+                <filter name="group_date" string="Date" context="{'group_by':'measurement_date:day'}"/>
+            </search>
+        </field>
+    </record>
 
-        <!-- Action -->
-        <record id="action_measurements" model="ir.actions.act_window">
-            <field name="name">Measurements</field>
-            <field name="res_model">patient.measurements</field>
-            <field name="view_mode">list,form</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Create a new measurement record
-                </p>
-            </field>
-        </record>
-
-        <!-- Menu Items -->
-        <menuitem id="menu_measurements_root" 
-                  name="Measurements" 
-                  sequence="40"/>
-        
-        <menuitem id="menu_measurements_main" 
-                  name="Patient Measurements" 
-                  parent="menu_measurements_root" 
-                  action="action_measurements" 
-                  sequence="10"/>
-
-    </data>
+    <record id="action_measurement" model="ir.actions.act_window">
+        <field name="name">Measurements</field>
+        <field name="res_model">patient.monitoring.measurement</field>
+        <field name="view_mode">list,form,graph</field>
+        <field name="search_view_id" ref="view_measurement_search"/>
+    </record>
 </odoo>

@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_medical_record" model="ir.actions.report">
+        <field name="name">Medical Record</field>
+        <field name="model">patient.monitoring.medical.record</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">health_monitoring.report_medical_record</field>
+        <field name="report_file">health_monitoring.report_medical_record</field>
+        <field name="print_report_name">'Medical Record - ' + object.name</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <template id="report_medical_record">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Medical Record: <t t-out="doc.name"/></h2>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <h4>Patient Information</h4>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Name:</strong></td><td><t t-out="doc.patient_id.name"/></td></tr>
+                                    <tr><td><strong>Reference:</strong></td><td><t t-out="doc.patient_id.patient_ref"/></td></tr>
+                                    <tr><td><strong>Age:</strong></td><td><t t-out="doc.patient_id.age"/></td></tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <h4>Record Details</h4>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Date:</strong></td><td><t t-out="doc.date"/></td></tr>
+                                    <tr><td><strong>Type:</strong></td><td><t t-out="doc.record_type"/></td></tr>
+                                    <tr><td><strong>Attending Staff:</strong></td><td><t t-out="doc.attending_staff_id.name or 'N/A'"/></td></tr>
+                                    <tr><td><strong>Status:</strong></td><td><t t-out="doc.state"/></td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div t-if="doc.diagnosis" class="mt-4">
+                            <h4>Diagnosis</h4>
+                            <p><t t-out="doc.diagnosis"/></p>
+                        </div>
+                        <div t-if="doc.treatment" class="mt-4">
+                            <h4>Treatment Plan</h4>
+                            <p><t t-out="doc.treatment"/></p>
+                        </div>
+                        <div t-if="doc.prescriptions" class="mt-4">
+                            <h4>Prescriptions</h4>
+                            <p><t t-out="doc.prescriptions"/></p>
+                        </div>
+                        <div t-if="doc.measurement_ids" class="mt-4">
+                            <h4>Measurements</h4>
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th><th>HR (bpm)</th><th>Temp (°C)</th><th>O2 (%)</th><th>Resp (/min)</th><th>Anomaly</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.measurement_ids" t-as="m">
+                                        <td><t t-out="m.measurement_date"/></td>
+                                        <td><t t-out="m.heart_rate"/></td>
+                                        <td><t t-out="m.temperature"/></td>
+                                        <td><t t-out="m.oxygen_saturation"/></td>
+                                        <td><t t-out="m.respiratory_rate"/></td>
+                                        <td><t t-if="m.has_anomaly">Yes</t><t t-else="">Normal</t></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div t-if="doc.notes" class="mt-4">
+                            <h4>Clinical Notes</h4>
+                            <p><t t-out="doc.notes"/></p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="action_report_patient_monitoring" model="ir.actions.report">
+        <field name="name">Patient Monitoring Report</field>
+        <field name="model">patient.monitoring.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">health_monitoring.report_patient_monitoring</field>
+        <field name="report_file">health_monitoring.report_patient_monitoring</field>
+        <field name="print_report_name">'Patient Monitoring Report - ' + object.patient_id.name</field>
+        <field name="binding_model_id" eval="False"/>
+    </record>
+
+    <template id="report_patient_monitoring">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+
+                <t t-set="rdata"       t-value="report_data[doc.id]"/>
+                <t t-set="patient"     t-value="rdata['patient']"/>
+                <t t-set="med_records" t-value="rdata['med_records']"/>
+                <t t-set="charts"      t-value="rdata['charts']"/>
+
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <div style="border-bottom: 2px solid #2563EB; padding-bottom: 14px; margin-bottom: 20px;">
+                            <p style="margin: 0; font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Patient Monitoring Report
+                            </p>
+                            <h2 style="margin: 2px 0 0; color: #1E3A5F; font-size: 22px;">
+                                <t t-out="patient.name"/>
+                            </h2>
+                            <p style="margin: 4px 0 0; font-size: 12px; color: #4B5563;">
+                                Ref: <t t-out="patient.patient_ref"/>
+                                &#160;&#160;·&#160;&#160;
+                                Age: <t t-out="patient.age"/> yrs
+                                &#160;&#160;·&#160;&#160;
+                                Sex: <t t-out="patient.sex"/>
+                            </p>
+                        </div>
+
+                        <div style="margin-bottom: 24px;">
+                            <h4 style="background:#EFF6FF; padding: 5px 10px; border-left: 3px solid #2563EB;
+                                        margin-bottom: 8px; font-size: 12px; color: #1E40AF;">
+                                Patient Information
+                            </h4>
+                            <table class="table table-sm table-bordered" style="font-size: 11px;">
+                                <tbody>
+                                    <tr>
+                                        <td style="width:22%; background:#F8FAFF;"><strong>Date of Birth</strong></td>
+                                        <td><t t-out="patient.date_of_birth or '—'"/></td>
+                                        <td style="width:22%; background:#F8FAFF;"><strong>Admission Date</strong></td>
+                                        <td><t t-out="patient.admission_date or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background:#F8FAFF;"><strong>Phone</strong></td>
+                                        <td><t t-out="patient.phone_number or '—'"/></td>
+                                        <td style="background:#F8FAFF;"><strong>Discharge Date</strong></td>
+                                        <td><t t-out="patient.discharge_date or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background:#F8FAFF;"><strong>Email</strong></td>
+                                        <td><t t-out="patient.email or '—'"/></td>
+                                        <td style="background:#F8FAFF;"><strong>Assigned Staff</strong></td>
+                                        <td><t t-out="patient.assigned_staff_id.name or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="background:#F8FAFF;"><strong>Address</strong></td>
+                                        <td colspan="3"><t t-out="patient.address or '—'"/></td>
+                                    </tr>
+                                    <tr t-if="patient.emergency_contact or patient.emergency_phone">
+                                        <td style="background:#F8FAFF;"><strong>Emergency Contact</strong></td>
+                                        <td><t t-out="patient.emergency_contact or '—'"/></td>
+                                        <td style="background:#F8FAFF;"><strong>Emergency Phone</strong></td>
+                                        <td><t t-out="patient.emergency_phone or '—'"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <t t-foreach="med_records" t-as="rec">
+                            <div style="margin-bottom: 20px; page-break-inside: avoid;">
+
+                                <h4 style="background:#EFF6FF; padding: 5px 10px; border-left: 3px solid #2563EB;
+                                            margin-bottom: 8px; font-size: 12px; color: #1E40AF;">
+                                    Medical Record — <t t-out="rec.name"/>
+                                </h4>
+
+                                <table class="table table-sm table-bordered" style="font-size: 11px; margin-bottom: 8px;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="width:22%; background:#F8FAFF;"><strong>Date</strong></td>
+                                            <td>
+                                                <t t-out="rec.date and rec.date.strftime('%Y-%m-%d %H:%M') or '—'"/>
+                                            </td>
+                                            <td style="width:22%; background:#F8FAFF;"><strong>Type</strong></td>
+                                            <td><t t-out="rec.record_type"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="background:#F8FAFF;"><strong>Attending Staff</strong></td>
+                                            <td><t t-out="rec.attending_staff_id.name or '—'"/></td>
+                                            <td style="background:#F8FAFF;"><strong>Status</strong></td>
+                                            <td><t t-out="rec.state"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                                <t t-set="has_thresholds" t-value="
+                                    rec.min_heart_rate or rec.max_heart_rate or
+                                    rec.min_pulse or rec.max_pulse or
+                                    rec.min_oxygen_saturation or rec.max_oxygen_saturation or
+                                    rec.min_respiratory_rate or rec.max_respiratory_rate or
+                                    rec.min_temperature or rec.max_temperature
+                                "/>
+                                <t t-if="has_thresholds">
+                                    <p style="font-size: 11px; font-weight: 600; color: #374151; margin: 8px 0 4px;">
+                                        Vital Sign Thresholds
+                                    </p>
+                                    <table class="table table-sm table-bordered" style="font-size: 10.5px;">
+                                        <thead>
+                                            <tr style="background:#EFF6FF;">
+                                                <th style="width:50%;">Vital Sign</th>
+                                                <th style="width:25%;">Min</th>
+                                                <th style="width:25%;">Max</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-if="rec.min_heart_rate or rec.max_heart_rate">
+                                                <td>Heart Rate (bpm)</td>
+                                                <td><t t-out="rec.min_heart_rate or '—'"/></td>
+                                                <td><t t-out="rec.max_heart_rate or '—'"/></td>
+                                            </tr>
+                                            <tr t-if="rec.min_pulse or rec.max_pulse">
+                                                <td>Pulse (bpm)</td>
+                                                <td><t t-out="rec.min_pulse or '—'"/></td>
+                                                <td><t t-out="rec.max_pulse or '—'"/></td>
+                                            </tr>
+                                            <tr t-if="rec.min_oxygen_saturation or rec.max_oxygen_saturation">
+                                                <td>O2 Saturation (%)</td>
+                                                <td><t t-out="rec.min_oxygen_saturation or '—'"/></td>
+                                                <td><t t-out="rec.max_oxygen_saturation or '—'"/></td>
+                                            </tr>
+                                            <tr t-if="rec.min_respiratory_rate or rec.max_respiratory_rate">
+                                                <td>Respiratory Rate (/min)</td>
+                                                <td><t t-out="rec.min_respiratory_rate or '—'"/></td>
+                                                <td><t t-out="rec.max_respiratory_rate or '—'"/></td>
+                                            </tr>
+                                            <tr t-if="rec.min_temperature or rec.max_temperature">
+                                                <td>Temperature (°C)</td>
+                                                <td><t t-out="rec.min_temperature or '—'"/></td>
+                                                <td><t t-out="rec.max_temperature or '—'"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+
+                                <div t-if="rec.diagnosis" style="margin-top: 8px; font-size: 11px;">
+                                    <strong>Diagnosis:</strong>
+                                    <p style="margin: 3px 0 0; white-space: pre-wrap;"><t t-out="rec.diagnosis"/></p>
+                                </div>
+                                <div t-if="rec.treatment" style="margin-top: 8px; font-size: 11px;">
+                                    <strong>Treatment Plan:</strong>
+                                    <p style="margin: 3px 0 0; white-space: pre-wrap;"><t t-out="rec.treatment"/></p>
+                                </div>
+                                <div t-if="rec.prescriptions" style="margin-top: 8px; font-size: 11px;">
+                                    <strong>Prescriptions:</strong>
+                                    <p style="margin: 3px 0 0; white-space: pre-wrap;"><t t-out="rec.prescriptions"/></p>
+                                </div>
+                                <div t-if="rec.notes" style="margin-top: 8px; font-size: 11px;">
+                                    <strong>Clinical Notes:</strong>
+                                    <p style="margin: 3px 0 0; white-space: pre-wrap;"><t t-out="rec.notes"/></p>
+                                </div>
+
+                            </div>
+                        </t>
+                        <t t-if="not med_records">
+                            <p style="color: #9CA3AF; font-size: 11px; font-style: italic;">
+                                No medical records found for this patient.
+                            </p>
+                        </t>
+
+                        <t t-if="charts">
+                            <div style="page-break-before: always;">
+                                <h4 style="background:#EFF6FF; padding: 5px 10px; border-left: 3px solid #2563EB;
+                                            margin-bottom: 16px; font-size: 12px; color: #1E40AF;">
+                                    Vital Sign Charts
+                                </h4>
+
+                                <t t-foreach="charts" t-as="chart">
+                                    <div style="margin-bottom: 26px; page-break-inside: avoid;">
+
+                                        <table style="width: 100%; border: none; margin-bottom: 5px;">
+                                            <tr>
+                                                <td style="border: none; padding: 0;">
+                                                    <strong style="font-size: 12px; color: #1E3A5F;">
+                                                        <t t-out="chart['label']"/>
+                                                    </strong>
+                                                </td>
+                                                <td style="border: none; padding: 0; text-align: right;">
+                                                    <span style="font-size: 10px; color: #6B7280;
+                                                                  background: #F3F4F6; padding: 2px 8px;
+                                                                  border-radius: 4px;">
+                                                        <t t-out="chart['scope_label']"/>
+                                                        &#160;·&#160;
+                                                        <t t-out="chart['count']"/> readings
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <t t-if="chart['image_b64']">
+                                            <img t-att-src="'data:image/png;base64,' + chart['image_b64']"
+                                                 style="width: 100%; border: 1px solid #E5E7EB;
+                                                        border-radius: 4px;"/>
+                                        </t>
+                                        <t t-else="">
+                                            <p style="color: #9CA3AF; font-size: 11px; font-style: italic;
+                                                       padding: 14px 16px; background: #F9FAFB;
+                                                       border: 1px dashed #D1D5DB; border-radius: 4px; margin: 0;">
+                                                Not enough data to render this chart
+                                                (<t t-out="chart['count']"/> reading(s) found,
+                                                minimum 2 required for this period).
+                                            </p>
+                                        </t>
+
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <record id="view_report_wizard_form" model="ir.ui.view">
+        <field name="name">patient.report.wizard.form</field>
+        <field name="model">patient.monitoring.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Patient Report">
+                <group>
+                    <group string="Patient">
+                        <field name="patient_id"/>
+                        <field name="medical_record_id"
+                               options="{'no_create': True, 'no_quick_create': True}"/>
+                    </group>
+                </group>
+
+                <separator string="Vital Sign Graphs"/>
+
+                <p style="color: #6B7280; font-size: 13px; margin: 0 0 12px;">
+                    Add the vital signs you want charted in this report. For each one,
+                    choose <em>All Time</em> to plot every recorded reading, or
+                    <em>Custom Range</em> to restrict to a specific date window.
+                    Drag the handle column to reorder.
+                </p>
+
+                <field name="graph_line_ids">
+                    <list editable="bottom">
+                        <field name="sequence" widget="handle"/>
+                        <field name="vital_sign"/>
+                        <field name="time_scope"/>
+                        <field name="date_from"
+                            invisible="time_scope != 'date_range'"/>
+                        <field name="date_to"
+                            invisible="time_scope != 'date_range'"/>
+                    </list>
+                </field>
+
+                <footer>
+                    <button name="action_export_pdf"
+                            string="Export PDF"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_print"
+                            string="Print"
+                            type="object"
+                            class="btn-secondary"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_report_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Report</field>
+        <field name="res_model">patient.monitoring.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

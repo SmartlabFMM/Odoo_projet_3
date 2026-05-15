@@ -1,83 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
-        
-        <!-- Tree View -->
-        <record id="view_medical_staff_tree" model="ir.ui.view">
-            <field name="name">medical.staff.tree</field>
-            <field name="model">medical.staff</field>
-            <field name="arch" type="xml">
-                <list string="Medical Staff">
-                    <field name="first_name"/>
-                    <field name="last_name"/>
-                    <field name="department"/>
-                    <field name="phone_number"/>
-                    <field name="email"/>
-                </list>
-            </field>
-        </record>
 
-        <!-- Form View -->
-        <record id="view_medical_staff_form" model="ir.ui.view">
-            <field name="name">medical.staff.form</field>
-            <field name="model">medical.staff</field>
-            <field name="arch" type="xml">
-                <form string="Medical Staff">
-                    <sheet>
-                        <group>
-                            <group string="Staff Information">
-                                <field name="first_name"/>
-                                <field name="last_name"/>
-                                <field name="department"/>
-                            </group>
-                            <group string="Contact Information">
-                                <field name="phone_number"/>
-                                <field name="email"/>
-                            </group>
+    <record id="view_medical_staff_form" model="ir.ui.view">
+        <field name="name">patient.monitoring.staff.form</field>
+        <field name="model">patient.monitoring.staff</field>
+        <field name="arch" type="xml">
+            <form string="Medical Staff">
+                <sheet>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_patients" type="object"
+                                class="oe_stat_button" icon="fa-users">
+                            <field name="patient_count" widget="statinfo" string="Patients"/>
+                        </button>
+
+                        <button name="action_reset_telegram" type="object"
+                                class="oe_stat_button"
+                                icon="fa-check-circle"
+                                invisible="not telegram_linked"
+                                confirm="This will unlink the staff member from Telegram. They will need to scan the QR code again to re-register. Continue?">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value text-success">Linked</span>
+                                <span class="o_stat_text">Telegram</span>
+                            </div>
+                        </button>
+
+                        <button name="action_reset_telegram" type="object"
+                                class="oe_stat_button"
+                                icon="fa-chain-broken"
+                                invisible="telegram_linked">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value text-muted">Not Linked</span>
+                                <span class="o_stat_text">Telegram</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Full Name"/></h1>
+                        <h3>
+                            <field name="user_id"
+                                   placeholder="Linked System User"
+                                   options="{'no_create': True}"
+                                   readonly="1"/>
+                        </h3>
+                    </div>
+
+                    <group>
+                        <group string="Professional Details">
+                            <field name="employee_id" readonly="1"/>
+                            <field name="specialization"/>
+                            <field name="department"/>
                         </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+                        <group string="Contact &amp; Schedule">
+                            <field name="phone"/>
+                            <field name="email"/>
+                            <field name="shift_start"/>
+                            <field name="shift_end"/>
+                            <field name="active" string="Active Shifts"/>
+                        </group>
+                    </group>
 
-        <!-- Search View -->
-        <record id="view_medical_staff_search" model="ir.ui.view">
-            <field name="name">medical.staff.search</field>
-            <field name="model">medical.staff</field>
-            <field name="arch" type="xml">
-                <search string="Search Medical Staff">
-                    <field name="first_name"/>
-                    <field name="last_name"/>
-                    <field name="department"/>
-                    <field name="email"/>
-                    <separator/>
-                    <filter string="Department" name="group_by_department" context="{'group_by': 'department'}"/>
-                </search>
-            </field>
-        </record>
+                    <group string="Telegram Alert Setup" invisible="not id">
+                        <group col="1">
+                            <field name="telegram_status_html"
+                                   nolabel="1"
+                                   widget="html"
+                                   readonly="1"/>
+                        </group>
+                        <group col="1" invisible="telegram_linked or not telegram_qr_code">
+                            <field name="telegram_qr_code"
+                                   widget="image"
+                                   options="{'size': [220, 220]}"
+                                   nolabel="1"
+                                   readonly="1"/>
+                        </group>
+                        <field name="telegram_chat_id"
+                               string="Chat ID (auto-filled)"
+                               readonly="1"
+                               invisible="not telegram_chat_id"/>
+                    </group>
 
-        <!-- Action -->
-        <record id="action_medical_staff" model="ir.actions.act_window">
-            <field name="name">Medical Staff</field>
-            <field name="res_model">medical.staff</field>
-            <field name="view_mode">list,form</field>
-            <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
-                    Create a new medical staff record
-                </p>
-            </field>
-        </record>
+                    <p class="text-center text-muted ps-3"
+                       style="font-size: 0.85rem;"
+                       invisible="not id or telegram_linked or not telegram_qr_code">
+                        Scan the QR code above with your phone and Telegram opens automatically.
+                        Tap <strong>Start</strong> once to complete registration.
+                    </p>
 
-        <!-- Menu Items -->
-        <menuitem id="menu_medical_staff_root" 
-                  name="Medical Staff" 
-                  sequence="20"/>
-        
-        <menuitem id="menu_medical_staff_main" 
-                  name="Medical Staff" 
-                  parent="menu_medical_staff_root" 
-                  action="action_medical_staff" 
-                  sequence="10"/>
+                    <notebook invisible="not id">
+                        <page string="Managed Patients" name="patients">
+                            <field name="patient_ids" readonly="1">
+                                <list>
+                                    <field name="patient_ref"/>
+                                    <field name="name"/>
+                                    <field name="age"/>
+                                    <field name="sex"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
 
-    </data>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_medical_staff_tree" model="ir.ui.view">
+        <field name="name">patient.monitoring.staff.list</field>
+        <field name="model">patient.monitoring.staff</field>
+        <field name="arch" type="xml">
+            <list string="Medical Staff">
+                <field name="name"/>
+                <field name="user_id" string="System User"/>
+                <field name="employee_id"/>
+                <field name="specialization"/>
+                <field name="department"/>
+                <field name="phone"/>
+                <field name="telegram_linked"
+                       string="Telegram"
+                       widget="boolean_toggle"
+                       readonly="1"/>
+                <field name="active" string="Active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_medical_staff_search" model="ir.ui.view">
+        <field name="name">patient.monitoring.staff.search</field>
+        <field name="model">patient.monitoring.staff</field>
+        <field name="arch" type="xml">
+            <search string="Search Medical Staff">
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="employee_id"/>
+                <field name="department"/>
+                <filter name="doctors"          string="Doctors"
+                        domain="[('specialization','=','doctor')]"/>
+                <filter name="nurses"           string="Nurses"
+                        domain="[('specialization','=','nurse')]"/>
+                <filter name="telegram_linked"  string="Telegram Linked"
+                        domain="[('telegram_linked','=',True)]"/>
+                <filter name="telegram_missing" string="Telegram Not Set Up"
+                        domain="[('telegram_linked','=',False)]"/>
+                <separator/>
+                <filter name="group_specialization" string="Specialization"
+                        context="{'group_by':'specialization'}"/>
+                <filter name="group_department"     string="Department"
+                        context="{'group_by':'department'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_medical_staff" model="ir.actions.act_window">
+        <field name="name">Medical Staff</field>
+        <field name="res_model">patient.monitoring.staff</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('user_id', '!=', False)]</field>
+        <field name="search_view_id" ref="view_medical_staff_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No medical staff yet!
+            </p>
+            <p>
+                Go to <strong>Settings → Users</strong>, open a user,
+                and assign them the <strong>Medical Staff</strong> role.
+                Their profile will appear here automatically.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_medical_staff_overview" model="ir.actions.client">
+        <field name="name">Medical Staff</field>
+        <field name="tag">health_monitoring.medical_staff_dashboard</field>
+    </record>
+
 </odoo>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_patient_monitoring_root"
+        name="Patient Monitoring"
+        sequence="100"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+    <menuitem id="menu_patient_monitoring_overview"
+        name="Overview"
+        parent="menu_patient_monitoring_root"
+        action="action_navigation_dashboard"
+        sequence="5"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+    <menuitem id="menu_patient_monitoring_staff"
+        name="Medical Staff"
+        parent="menu_patient_monitoring_root"
+        action="action_medical_staff_overview"
+        sequence="10"
+        groups="health_monitoring.group_admin"/>
+
+    <menuitem id="menu_patient_monitoring_patients"
+        name="Patients"
+        parent="menu_patient_monitoring_root"
+        action="action_patient"
+        sequence="15"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+    <menuitem id="menu_patient_monitoring_records"
+        name="Medical Records"
+        parent="menu_patient_monitoring_root"
+        sequence="20"
+        action="action_medical_record"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+    <menuitem id="menu_patient_monitoring_alerts"
+        name="Alerts"
+        parent="menu_patient_monitoring_root"
+        action="action_alert"
+        sequence="40"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+    <menuitem id="menu_patient_monitoring_reports"
+        name="Reports"
+        parent="menu_patient_monitoring_root"
+        sequence="50"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+    <menuitem id="menu_report_generate"
+        name="Generate Report"
+        parent="menu_patient_monitoring_reports"
+        action="action_report_wizard"
+        sequence="10"
+        groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
+
+
+</odoo>

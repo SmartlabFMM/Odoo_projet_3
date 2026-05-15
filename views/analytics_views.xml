@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_analytics_measurement_graph" model="ir.ui.view">
+        <field name="name">patient.monitoring.measurement.analytics.graph</field>
+        <field name="model">patient.monitoring.measurement</field>
+        <field name="arch" type="xml">
+            <graph string="Vitals Analytics" type="line">
+                <field name="measurement_date" type="row"/>
+                <field name="heart_rate" type="measure" string="Avg Heart Rate"/>
+                <field name="oxygen_saturation" type="measure" string="Avg O2 Sat"/>
+                <field name="temperature" type="measure" string="Avg Temperature"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_analytics_measurement_pivot" model="ir.ui.view">
+        <field name="name">patient.monitoring.measurement.analytics.pivot</field>
+        <field name="model">patient.monitoring.measurement</field>
+        <field name="arch" type="xml">
+            <pivot string="Measurements Pivot">
+                <field name="patient_id" type="row"/>
+                <field name="measurement_date" type="col"/>
+                <field name="heart_rate" type="measure"/>
+                <field name="oxygen_saturation" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_analytics_alert_graph" model="ir.ui.view">
+        <field name="name">patient.monitoring.alert.analytics.graph</field>
+        <field name="model">patient.monitoring.alert</field>
+        <field name="arch" type="xml">
+            <graph string="Alert Analytics" type="bar">
+                <field name="alert_date" type="row"/>
+                <field name="severity" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_analytics_alert_pivot" model="ir.ui.view">
+        <field name="name">patient.monitoring.alert.analytics.pivot</field>
+        <field name="model">patient.monitoring.alert</field>
+        <field name="arch" type="xml">
+            <pivot string="Alert History Pivot">
+                <field name="patient_id" type="row"/>
+                <field name="severity" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_analytics_realtime" model="ir.actions.act_window">
+        <field name="name">Real-time Analytics</field>
+        <field name="res_model">patient.monitoring.measurement</field>
+        <field name="view_mode">graph,pivot,list</field>
+    </record>
+
+    <record id="action_analytics_archived" model="ir.actions.act_window">
+        <field name="name">Archived Data Analytics</field>
+        <field name="res_model">patient.monitoring.alert</field>
+        <field name="view_mode">graph,pivot,list</field>
+        <field name="domain">[('state','in',['resolved','rejected'])]</field>
+    </record>
+
+    <record id="action_analytics_main" model="ir.actions.act_window">
+        <field name="name">View Analytics</field>
+        <field name="res_model">patient.monitoring.measurement</field>
+        <field name="view_mode">graph,pivot,list</field>
+    </record>
+</odoo>

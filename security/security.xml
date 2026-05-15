@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="group_medical_staff" model="res.groups">
+            <field name="name">Medical Staff</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_admin" model="res.groups">
+            <field name="name">Administrator</field>
+            <field name="implied_ids" eval="[(4, ref('group_medical_staff'))]"/>
+        </record>
+
+        <record id="seq_patient" model="ir.sequence">
+            <field name="name">Patient Reference</field>
+            <field name="code">patient.monitoring.patient</field>
+            <field name="prefix">PAT-</field>
+            <field name="padding">5</field>
+        </record>
+
+        <record id="seq_medical_record" model="ir.sequence">
+            <field name="name">Medical Record Reference</field>
+            <field name="code">patient.monitoring.medical.record</field>
+            <field name="prefix">MR-</field>
+            <field name="padding">5</field>
+        </record>
+
+        <record id="seq_measurement" model="ir.sequence">
+            <field name="name">Measurement Reference</field>
+            <field name="code">patient.monitoring.measurement</field>
+            <field name="prefix">MEAS-</field>
+            <field name="padding">5</field>
+        </record>
+
+        <record id="seq_alert" model="ir.sequence">
+            <field name="name">Alert Reference</field>
+            <field name="code">patient.monitoring.alert</field>
+            <field name="prefix">ALT-</field>
+            <field name="padding">5</field>
+        </record>
+
+    </data>
+</odoo>

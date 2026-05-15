@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_alert_form" model="ir.ui.view">
+        <field name="name">patient.monitoring.alert.form</field>
+        <field name="model">patient.monitoring.alert</field>
+        <field name="arch" type="xml">
+            <form string="Alert">
+                <header>
+                    <button name="action_acknowledge" string="Acknowledge" type="object"
+                        class="btn-secondary"
+                        invisible="state != 'pending'"/>
+                    <button name="action_accept" string="Accept" type="object"
+                        class="btn-primary"
+                        invisible="state not in ('pending', 'acknowledged')"/>
+                    <button name="action_reject" string="Reject" type="object"
+                        class="btn-danger"
+                        invisible="state not in ('pending', 'acknowledged')"/>
+                    <button name="action_resolve" string="Mark Resolved" type="object"
+                        invisible="state != 'accepted'"/>
+                    <button name="action_send_alert" string="Send to Staff" type="object"
+                        class="btn-warning"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="pending,acknowledged,accepted,resolved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                            <span class="badge ms-2">
+                                <field name="severity"/>
+                            </span>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="patient_id"/>
+                            <field name="alert_type"/>
+                            <field name="severity"/>
+                            <field name="alert_date"/>
+                        </group>
+                        <group>
+                            <field name="measurement_id" domain="[('patient_id','=',patient_id)]"/>
+                            <field name="alert_status" widget="badge"/>
+                            <field name="handled_by_id"/>
+                            <field name="acknowledged_date"/>
+                            <field name="resolved_date"/>
+                        </group>
+                    </group>
+                    <group string="Alert Description">
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <group string="Resolution Notes"
+                        invisible="state not in ('accepted', 'rejected', 'resolved')">
+                        <field name="resolution_notes" nolabel="1"/>
+                    </group>
+                    <group string="Notified Staff">
+                        <field name="notified_staff_ids" widget="many2many_tags" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_alert_tree" model="ir.ui.view">
+        <field name="name">patient.monitoring.alert.tree</field>
+        <field name="model">patient.monitoring.alert</field>
+        <field name="arch" type="xml">
+            <list string="Alerts"
+                create="0"
+                decoration-danger="severity == 'critical'"
+                decoration-warning="severity == 'high'"
+                decoration-muted="state in ('resolved', 'rejected')">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="alert_date"/>
+                <field name="alert_type"/>
+                <field name="severity" widget="badge"/>
+                <field name="state" widget="badge"/>
+                <field name="handled_by_id"/>
+                <field name="alert_status" column_invisible="1"/>
+                <button name="action_acknowledge" string="Acknowledge" type="object"
+                    class="btn-sm btn-secondary"
+                    invisible="state != 'pending'"/>
+                <button name="action_accept" string="Accept" type="object"
+                    class="btn-sm btn-primary"
+                    invisible="state not in ('pending', 'acknowledged')"/>
+                <button name="action_reject" string="Reject" type="object"
+                    class="btn-sm btn-danger"
+                    invisible="state not in ('pending', 'acknowledged')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_alert_kanban" model="ir.ui.view">
+        <field name="name">patient.monitoring.alert.kanban</field>
+        <field name="model">patient.monitoring.alert</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="alert_status" class="o_kanban_mobile" create="0">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="severity"/>
+                <field name="state"/>
+                <field name="alert_status"/>
+                <field name="alert_date"/>
+                <field name="color"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_title">
+                                    <strong><field name="name"/></strong>
+                                </div>
+                                <div>Patient: <field name="patient_id"/></div>
+                                <div>Severity: <field name="severity"/></div>
+                                <div class="text-muted"><field name="alert_date"/></div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_alert_search" model="ir.ui.view">
+        <field name="name">patient.monitoring.alert.search</field>
+        <field name="model">patient.monitoring.alert</field>
+        <field name="arch" type="xml">
+            <search string="Search Alerts">
+                <field name="name"/>
+                <field name="patient_id"/>
+                <field name="handled_by_id"/>
+                <filter name="current_alerts" string="Current Alerts"
+                    domain="[('alert_status', '=', 'current')]"/>
+                <filter name="old_alerts" string="Old Alerts"
+                    domain="[('alert_status', '=', 'old')]"/>
+                <separator/>
+                <filter name="pending" string="Pending"
+                    domain="[('state', '=', 'pending')]"/>
+                <filter name="critical_high" string="Critical / High"
+                    domain="[('severity', 'in', ['critical', 'high'])]"/>
+                <filter name="anomaly" string="Anomaly Alerts"
+                    domain="[('alert_type', '=', 'anomaly')]"/>
+                <filter name="unresolved" string="Unresolved"
+                    domain="[('state', 'not in', ['resolved', 'rejected'])]"/>
+                <separator/>
+                <filter name="group_alert_status" string="Current / Old"
+                    context="{'group_by': 'alert_status'}"/>
+                <filter name="group_state" string="Status"
+                    context="{'group_by': 'state'}"/>
+                <filter name="group_severity" string="Severity"
+                    context="{'group_by': 'severity'}"/>
+                <filter name="group_patient" string="Patient"
+                    context="{'group_by': 'patient_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_alert" model="ir.actions.act_window">
+        <field name="name">Alerts</field>
+        <field name="res_model">patient.monitoring.alert</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="view_alert_search"/>
+        <field name="context">{
+            'search_default_group_alert_status': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No alerts found. All systems normal!
+            </p>
+        </field>
+    </record>
+
+</odoo>

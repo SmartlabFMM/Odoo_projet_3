@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="health_monitoring.VitalsChartWidget">
+        <div class="o_field_widget vitals-charts-wrapper p-3">
+
+            <t t-if="!state.loaded">
+                <div class="text-center text-muted py-4">Loading charts…</div>
+            </t>
+
+            <t t-elif="state.sessions.length === 0">
+                <div class="text-center text-muted py-4">No measurements recorded yet.</div>
+            </t>
+
+            <t t-else="">
+                <t t-foreach="state.sessions" t-as="session" t-key="session.session_id">
+                    <div class="vitals-session-block mb-4">
+
+                        <!-- Session header -->
+                        <div class="vitals-session-header d-flex align-items-center gap-2 mb-2 px-1">
+                            <span class="vitals-session-badge"
+                                  t-attf-style="background: rgb({{session.color}}); color: #fff;">
+                                Session <t t-esc="session_index + 1"/>
+                            </span>
+                            <small class="text-muted" t-esc="session.label"/>
+                        </div>
+
+                        <!-- 5 vital charts in a responsive grid -->
+                        <div class="row g-2">
+                            <t t-foreach="vitals" t-as="vital" t-key="vital.key">
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="vitals-chart-card">
+                                        <canvas t-attf-id="vchart-{{session_index}}-{{vital.key}}"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+
+        </div>
+    </t>
+</templates>

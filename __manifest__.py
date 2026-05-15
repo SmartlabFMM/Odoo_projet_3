@@ -1,18 +1,46 @@
 {
-    "name": "Health Monitoring",
-    "version": "1.0",
-    "category": "Medical",
-    "license": "AGPL-3",
-    "author" : "Youssef Battikh",
-    "depends": ["base"],
-    "data": [
-        "security/ir.model.access.csv",
-        "views/patient_views.xml",
-        "views/medical_staff_views.xml",
-        "views/vital_signs_views.xml",
-        "views/measurements_views.xml",
-        "views/alert_views.xml",
+    'name':     'Health Monitoring & AI Alerts Module',
+    'version':  '0.1',
+    'category': 'Healthcare',
+    'author':   'Smartlab FMM',
+
+    'depends': ['base', 'mail'],
+
+    'external_dependencies': {
+        'python': ['qrcode', 'PIL', 'matplotlib'],
+    },
+
+    'post_init_hook': 'post_init_hook',
+
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/alert_thresholds.xml',
+        'views/dashboard_views.xml',
+        'views/medical_staff_views.xml',
+        'views/patient_views.xml',
+        'views/medical_record_views.xml',
+        'views/measurements_views.xml',
+        'views/alerts_views.xml',
+        'views/report_views.xml',
+        'views/analytics_views.xml',
+        'views/menu_views.xml',
     ],
-    "installable": True,
-    "application": True,
+
+    'assets': {
+        'web.assets_backend': [
+            'health_monitoring/static/src/js/vitals_chart_widget.js',
+            'health_monitoring/static/src/js/medical_staff_dashboard.js',
+            'health_monitoring/static/src/xml/medical_staff_dashboard.xml',
+            'health_monitoring/static/src/xml/vitals_chart_widget.xml',
+            'health_monitoring/static/src/css/patient_monitoring.css',
+            'health_monitoring/static/src/js/navigation_dashboard.js',
+            'health_monitoring/static/src/xml/navigation_dashboard.xml',
+            'health_monitoring/static/src/css/navigation_dashboard.css',
+        ],
+    },
+
+    'installable': True,
+    'application': True,
+    'license':     'LGPL-3',
 }

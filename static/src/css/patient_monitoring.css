@@ -1,0 +1,80 @@
+.vitals-charts-wrapper {
+    background: #f8f9fc;
+    border-radius: 10px;
+    min-height: 80px;
+}
+
+.vitals-session-block {
+    border: 1.5px solid rgba(91, 79, 207, 0.12);
+    border-radius: 12px;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(91, 79, 207, 0.06);
+}
+
+.vitals-session-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.vitals-session-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.vitals-chart-card {
+    background: #f8f9fc;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 10px;
+    position: relative;
+    height: 180px;
+    display: flex;
+    align-items: stretch;
+}
+
+.vitals-chart-card canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.o_pm_stream_live_btn {
+    position: relative;
+}
+
+.o_pm_live_label {
+    color: #28a745 !important;
+    font-weight: 700;
+}
+
+.o_pm_live_label::before {
+    content: "● ";
+    font-size: 10px;
+    animation: pm_live_blink 1.4s ease-in-out infinite;
+}
+
+@keyframes pm_live_blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+}
+
+.o_pm_alert_critical td {
+    background-color: rgba(220, 53, 69, 0.06) !important;
+}
+
+.o_pm_alert_high td {
+    background-color: rgba(255, 193, 7, 0.07) !important;
+}
+
+
+@media (max-width: 768px) {
+    .vitals-chart-card {
+        height: 150px;
+    }
+}

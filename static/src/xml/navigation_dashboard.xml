@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="health_monitoring.NavigationDashboard">
+        <div class="hm_wrap">
+
+            <header class="hm_header">
+                <div class="hm_header_top">
+
+                    <div>
+                        <span class="hm_eyebrow">Patient Monitoring System</span>
+                        <h1 class="hm_title">Clinical Overview</h1>
+                    </div>
+
+                    <div class="hm_stats" t-if="state.loaded">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="state.patientCount"/>
+                            <span class="hm_stat_l">Patients</span>
+                        </div>
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="state.staffCount"/>
+                            <span class="hm_stat_l">Staff</span>
+                        </div>
+                        <div class="hm_stat hm_stat--live">
+                            <span class="hm_stat_n">
+                                <i class="hm_live_dot"/>
+                                <t t-esc="state.liveCount"/>
+                            </span>
+                            <span class="hm_stat_l">Live</span>
+                        </div>
+                    </div>
+
+                </div>
+            </header>
+
+            <main class="hm_list">
+
+                <div class="hm_row"
+                     t-on-click="openMedicalStaff"
+                     role="button"
+                     tabindex="0"
+                     t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openMedicalStaff()">
+                    <span class="hm_row_idx">01</span>
+                    <div class="hm_row_content">
+                        <span class="hm_row_title">Medical Staff</span>
+                        <span class="hm_row_desc">Manage profiles, roles, Telegram alert channels, and patient assignments.</span>
+                    </div>
+                    <span class="hm_row_arrow">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="hm_row"
+                     t-on-click="openPatients"
+                     role="button"
+                     tabindex="0"
+                     t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openPatients()">
+                    <span class="hm_row_idx">02</span>
+                    <div class="hm_row_content">
+                        <span class="hm_row_title">Patients</span>
+                        <span class="hm_row_desc">View and manage patient profiles, stream status, and assigned medical staff.</span>
+                    </div>
+                    <span class="hm_row_arrow">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <div class="hm_row"
+                     t-on-click="openMedicalRecords"
+                     role="button"
+                     tabindex="0"
+                     t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openMedicalRecords()">
+                    <span class="hm_row_idx">03</span>
+                    <div class="hm_row_content">
+                        <span class="hm_row_title">Medical Records</span>
+                        <span class="hm_row_desc">Access diagnoses, treatment plans, prescriptions, and clinical notes.</span>
+                    </div>
+                    <span class="hm_row_arrow">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </div>
+
+                <!-- Reports -->
+                <div class="hm_row"
+                     t-on-click="openReports"
+                     role="button"
+                     tabindex="0"
+                     t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openReports()">
+                    <span class="hm_row_idx">04</span>
+                    <div class="hm_row_content">
+                        <span class="hm_row_title">Reports</span>
+                        <span class="hm_row_desc">Generate and export PDF or Excel reports for patients and medical records.</span>
+                    </div>
+                    <span class="hm_row_arrow">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+                        </svg>
+                    </span>
+                </div>
+
+            </main>
+
+            <!-- ── Footer ──────────────────────────────────── -->
+            <footer class="hm_footer">
+                <span>Health Monitoring &amp; AI Alerts</span>
+                <span class="hm_footer_sep">·</span>
+                <span>Smartlab FMM</span>
+            </footer>
+
+        </div>
+    </t>
+
+</templates>

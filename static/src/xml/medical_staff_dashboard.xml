@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="health_monitoring.MedicalStaffDashboard">
+        <div class="hm_wrap">
+
+            <header class="hm_header">
+                <div class="hm_header_top">
+
+                    <div>
+                        <span class="hm_eyebrow">Patient Monitoring System</span>
+                        <h1 class="hm_title">Medical Staff</h1>
+                    </div>
+
+                    <div class="hm_stats" t-if="state.loaded">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="state.totalCount"/>
+                            <span class="hm_stat_l">Total</span>
+                        </div>
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="state.activeCount"/>
+                            <span class="hm_stat_l">Active</span>
+                        </div>
+                        <div class="hm_stat hm_stat--live">
+                            <span class="hm_stat_n">
+                                <i class="hm_live_dot"/>
+                                <t t-esc="state.telegramCount"/>
+                            </span>
+                            <span class="hm_stat_l">Telegram</span>
+                        </div>
+                    </div>
+
+                    <div class="hm_stats" t-if="!state.loaded">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Total</span>
+                        </div>
+                        <div class="hm_stat">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Active</span>
+                        </div>
+                        <div class="hm_stat hm_stat--live">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Telegram</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </header>
+
+
+            <main class="hm_list">
+
+                <t t-if="!state.loaded">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">Loading…</span>
+                    </div>
+                </t>
+
+                <t t-elif="state.staff.length === 0">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">No staff records found</span>
+                        <p class="hm_state_hint">
+                            Go to <strong>Settings → Users</strong>, open a user,
+                            and assign the <strong>Medical Staff</strong> role.
+                            Their profile will appear here automatically.
+                        </p>
+                    </div>
+                </t>
+
+                <t t-else="">
+                    <t t-foreach="state.staff" t-as="member" t-key="member.id">
+
+                        <div class="hm_row hm_row--staff"
+                             t-on-click="() => this.openStaff(member.id)"
+                             role="button"
+                             tabindex="0"
+                             t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.openStaff(member.id)">
+
+                            <span class="hm_row_idx" t-esc="fmtIdx(member_index)"/>
+
+                            <div class="hm_row_content">
+                                <div class="hm_row_name">
+                                    <span class="hm_row_title" t-esc="member.name"/>
+                                    <t t-if="member.specialization">
+                                        <span class="hm_spec_badge"
+                                              t-esc="specLabel(member.specialization)"/>
+                                    </t>
+                                </div>
+                                <span class="hm_row_desc" t-esc="buildDesc(member)"/>
+                            </div>
+
+                            <div class="hm_row_meta">
+                                <span t-attf-class="hm_tag {{ member.telegram_linked ? 'hm_tag--ok' : 'hm_tag--off' }}">
+                                    <t t-if="member.telegram_linked">✓ Telegram</t>
+                                    <t t-else="">— Telegram</t>
+                                </span>
+                                <span t-attf-class="hm_tag {{ member.active ? 'hm_tag--active' : 'hm_tag--inactive' }}">
+                                    <t t-if="member.active">Active</t>
+                                    <t t-else="">Inactive</t>
+                                </span>
+                            </div>
+
+                            <span class="hm_row_arrow">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                                </svg>
+                            </span>
+
+                        </div>
+
+                    </t>
+                </t>
+
+            </main>
+
+
+            <footer class="hm_footer">
+                <span>Health Monitoring &amp; AI Alerts</span>
+                <span class="hm_footer_sep">·</span>
+                <span>Smartlab FMM</span>
+            </footer>
+
+        </div>
+    </t>
+
+</templates>
