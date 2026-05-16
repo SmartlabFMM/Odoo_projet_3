@@ -95,9 +95,6 @@ class Measurements(models.Model):
             self._generate_alert(anomalies)
         else:
             self.write({'has_anomaly': False, 'anomaly_details': False})
-            # This measurement is clean — any current alert whose triggering
-            # measurement pre-dates this one can now be marked as old, because
-            # the patient's vitals have returned to a normal range.
             self._resolve_current_alerts()
 
     def _resolve_current_alerts(self):

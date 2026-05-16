@@ -72,9 +72,329 @@
     background-color: rgba(255, 193, 7, 0.07) !important;
 }
 
+.hm_row_user {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: rgba(91, 79, 207, 0.75);
+    letter-spacing: 0.02em;
+    margin-top: 1px;
+    margin-bottom: 2px;
+}
+
+.hm_staff_form .oe_title h1,
+.hm_staff_form .oe_title h1 .o_field_widget,
+.hm_staff_form .oe_title h1 .o_field_widget span,
+.hm_staff_form .oe_title h1 input {
+    font-size: 3.5rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em;
+    line-height: 1.15 !important;
+}
+
+.hm_qr_hint {
+    font-size: 0.92rem;
+    color: #3d3d3d;
+    line-height: 1.55;
+}
+
+.hm_qr_hint strong {
+    color: #1a1a1a;
+}
+
+.hm_tg_qr_image img {
+    border: 2.5px solid #1a1a2e !important;
+    box-shadow: 4px 4px 0 #1a1a2e !important;
+    border-radius: 0 !important;
+    display: block;
+}
+
+.hm_tg_telegram_row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+}
+
+.hm_tg_left_col {
+    flex: 0 0 calc(50% - 12px);
+    min-width: 0;
+}
+
+.hm_tg_right_col {
+    flex: 0 0 calc(50% - 12px);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.hm_staff_form .o_field_widget[name="telegram_status_html"],
+.hm_staff_form .o_field_widget[name="telegram_status_html"] .o_field_html {
+    display: block;
+    width: 100%;
+}
+
+.hm_tg_status {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 2.5px solid #1a1a2e;
+    box-shadow: 4px 4px 0 #1a1a2e;
+    background: #fff;
+    border-radius: 0;
+    margin-bottom: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 90px;
+}
+
+.hm_tg_linked {
+    border-left: 6px solid #1a7a38;
+    background: #f4fbf6;
+}
+
+.hm_tg_unlinked {
+    border-left: 6px solid #b08000;
+    background: #fdfbf2;
+}
+
+.hm_tg_warning {
+    border-left: 6px solid #9b1c1c;
+    background: #fdf4f4;
+}
+
+.hm_tg_icon {
+    flex-shrink: 0;
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1;
+    width: 36px;
+    text-align: center;
+    font-family: monospace;
+}
+
+.hm_tg_linked   .hm_tg_icon { color: #1a7a38; }
+.hm_tg_unlinked .hm_tg_icon { color: #b08000; }
+.hm_tg_warning  .hm_tg_icon { color: #9b1c1c; }
+
+.hm_tg_info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.hm_tg_label {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: #1a1a2e;
+    font-family: monospace;
+}
+
+.hm_tg_chatid {
+    display: block;
+    font-size: 0.9rem;
+    color: #3d3d3d;
+    font-weight: 500;
+}
+
+.hm_tg_chatid code {
+    font-family: monospace;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #1a1a2e;
+    background: rgba(0, 0, 0, 0.07);
+    padding: 1px 6px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    letter-spacing: 0.03em;
+}
+
+.hm_tg_hint {
+    display: block;
+    font-size: 0.84rem;
+    color: #4a4a5a;
+    line-height: 1.5;
+}
+
+.hm_tg_hint strong {
+    color: #1a1a2e;
+}
+
+.hm_tg_action_row {
+    display: flex;
+    justify-content: center;
+}
+
+.hm_unlink_btn {
+    display: inline-block;
+    border-radius: 0 !important;
+    border: 2.5px solid #1a1a2e !important;
+    background: #c0392b !important;
+    color: #fff !important;
+    font-size: 0.7rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    padding: 9px 22px !important;
+    box-shadow: 3px 3px 0 #1a1a2e !important;
+    transition: box-shadow 0.08s ease, transform 0.08s ease, background 0.1s !important;
+    font-family: monospace !important;
+    cursor: pointer;
+}
+
+.hm_unlink_btn:hover,
+.hm_unlink_btn:focus {
+    background: #922b21 !important;
+    box-shadow: 1px 1px 0 #1a1a2e !important;
+    transform: translate(2px, 2px) !important;
+    color: #fff !important;
+    outline: none !important;
+}
+
+.hm_unlink_btn:active {
+    box-shadow: none !important;
+    transform: translate(3px, 3px) !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view thead th {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #2c2c3a !important;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.hm_staff_form .o_notebook .o_list_view tbody td {
+    font-size: 0.93rem;
+    color: #1e1e2d !important;
+    font-weight: 500;
+}
+
+.hm_staff_form .o_notebook .o_list_view tbody td:first-child {
+    font-weight: 700;
+    color: #1a7a38 !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view tbody tr:hover td:first-child {
+    color: #135c2a !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view tbody td:nth-child(4) {
+    font-weight: 600;
+    color: #3d3d3d !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view .o_field_badge .badge {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    padding: 5px 14px !important;
+    border-radius: 20px !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view .o_field_badge .badge.text-bg-success {
+    background-color: #1e8f3e !important;
+    color: #fff !important;
+    animation: hm_live_ring 2s ease-out infinite;
+}
+
+@keyframes hm_live_ring {
+    0%   { box-shadow: 0 0 0 0   rgba(30, 143, 62, 0.55); }
+    70%  { box-shadow: 0 0 0 7px rgba(30, 143, 62, 0);    }
+    100% { box-shadow: 0 0 0 0   rgba(30, 143, 62, 0);    }
+}
+
+.hm_staff_form .o_notebook .o_list_view .o_field_badge .badge.text-bg-secondary {
+    background-color: #5a6270 !important;
+    color: #fff !important;
+}
+
+.o_dialog .modal-content {
+    border-radius: 0 !important;
+    border: 2.5px solid #1a1a2e !important;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.18) !important;
+}
+
+.o_dialog .modal-header {
+    border-bottom: 2px solid #922b21 !important;
+    border-radius: 0 !important;
+    background: #c0392b !important;
+    padding: 14px 20px !important;
+}
+
+.o_dialog .modal-header .modal-title {
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: #fff !important;
+}
+
+.o_dialog .modal-header .btn-close {
+    filter: invert(1) !important;
+}
+
+.o_dialog .modal-body {
+    font-size: 0.92rem !important;
+    color: #1e1e2d !important;
+    padding: 20px !important;
+    line-height: 1.6 !important;
+}
+
+.o_dialog .modal-footer {
+    border-top: 2px solid #1a1a2e !important;
+    padding: 12px 20px !important;
+    gap: 8px !important;
+}
+
+.o_dialog .modal-footer .btn-primary {
+    border-radius: 0 !important;
+    background: #c0392b !important;
+    border: 2px solid #922b21 !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #fff !important;
+}
+
+.o_dialog .modal-footer .btn-primary:hover {
+    background: #922b21 !important;
+}
+
+.o_dialog .modal-footer .btn-secondary {
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: 2px solid #1a1a2e !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #1a1a2e !important;
+}
+
+.o_dialog .modal-footer .btn-secondary:hover {
+    background: #1a1a2e !important;
+    color: #fff !important;
+}
 
 @media (max-width: 768px) {
     .vitals-chart-card {
         height: 150px;
+    }
+
+    .hm_tg_telegram_row {
+        flex-direction: column;
+    }
+
+    .hm_tg_status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
     }
 }

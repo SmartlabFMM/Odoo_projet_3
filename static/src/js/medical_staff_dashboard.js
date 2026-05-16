@@ -15,7 +15,6 @@ class MedicalStaffDashboard extends Component {
         this.state = useState({
             staff:         [],
             totalCount:    0,
-            activeCount:   0,
             telegramCount: 0,
             loaded:        false,
         });
@@ -31,7 +30,7 @@ class MedicalStaffDashboard extends Component {
                 [
                     "name", "user_id", "employee_id",
                     "specialization", "department",
-                    "phone", "telegram_linked", "active",
+                    "phone", "telegram_linked",
                 ],
                 { order: "name asc" }
             );
@@ -39,11 +38,11 @@ class MedicalStaffDashboard extends Component {
             Object.assign(this.state, {
                 staff,
                 totalCount:    staff.length,
-                activeCount:   staff.filter(s => s.active).length,
                 telegramCount: staff.filter(s => s.telegram_linked).length,
                 loaded:        true,
             });
-        } catch (_e) {
+        } catch (e) {
+            console.error("MedicalStaffDashboard._loadStaff failed:", e);
             this.state.loaded = true;
         }
     }
@@ -70,6 +69,10 @@ class MedicalStaffDashboard extends Component {
             admin:      "Admin",
         };
         return map[key] || key || "—";
+    }
+
+    userName(member) {
+        return member.user_id ? member.user_id[1] : "—";
     }
 
     buildDesc(member) {

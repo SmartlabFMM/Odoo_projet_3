@@ -13,7 +13,7 @@ class MedicalStaff(models.Model):
     _description = 'Medical Staff'
     _inherit     = ['mail.thread', 'mail.activity.mixin']
 
-    name        = fields.Char(string='Full Name', required=True, tracking=True)
+    name        = fields.Char(string='Full Name',   required=True, tracking=True)
     employee_id = fields.Char(string='Employee ID', required=True, copy=False)
 
     specialization = fields.Selection([
@@ -22,9 +22,8 @@ class MedicalStaff(models.Model):
     ], string='Specialization', required=True, tracking=True)
 
     department = fields.Char(string='Department')
-
-    phone = fields.Char(string='Phone')
-    email = fields.Char(string='Email')
+    phone      = fields.Char(string='Phone')
+    email      = fields.Char(string='Email')
 
     user_id = fields.Many2one(
         'res.users',
@@ -33,10 +32,6 @@ class MedicalStaff(models.Model):
         tracking=True,
     )
 
-    shift_start = fields.Float(string='Shift Start')
-    shift_end   = fields.Float(string='Shift End')
-    active      = fields.Boolean(string='Active', default=True)
-
     patient_ids = fields.One2many(
         'patient.monitoring.patient', 'assigned_staff_id',
         string='Managed Patients',
@@ -44,10 +39,10 @@ class MedicalStaff(models.Model):
     patient_count = fields.Integer(
         string='Patient Count', compute='_compute_patient_count',
     )
+
     alert_ids = fields.Many2many(
         'patient.monitoring.alert', string='Received Alerts',
     )
-
 
     telegram_chat_id = fields.Char(
         string='Telegram Chat ID',
@@ -58,33 +53,28 @@ class MedicalStaff(models.Model):
             'and taps Start in the Telegram bot. Do not edit manually.'
         ),
     )
-
     telegram_linked = fields.Boolean(
         string='Telegram Linked',
         compute='_compute_telegram_linked',
         store=True,
     )
-
     telegram_deep_link = fields.Char(
         string='Telegram Deep Link',
         compute='_compute_telegram_setup',
         store=False,
     )
-
     telegram_qr_code = fields.Binary(
         string='Telegram QR Code',
         compute='_compute_telegram_setup',
         store=False,
         attachment=False,
     )
-
     telegram_status_html = fields.Html(
         string='Registration Status',
         compute='_compute_telegram_setup',
         sanitize=False,
         store=False,
     )
-
 
     @api.depends('patient_ids')
     def _compute_patient_count(self):
@@ -106,13 +96,15 @@ class MedicalStaff(models.Model):
 
         for rec in self:
             if rec.telegram_chat_id:
-                rec.telegram_deep_link   = False
-                rec.telegram_qr_code     = False
+                rec.telegram_deep_link = False
+                rec.telegram_qr_code   = False
                 rec.telegram_status_html = (
-                    '<div class="alert alert-success mb-0" role="alert">'
-                    '  <i class="fa fa-check-circle me-2"></i>'
-                    '  <strong>Telegram linked</strong> &mdash; '
-                    f' Chat ID: <code>{rec.telegram_chat_id}</code>'
+                    '<div class="hm_tg_status hm_tg_linked">'
+                    '  <span class="hm_tg_icon">&#10003;</span>'
+                    '  <div class="hm_tg_info">'
+                    '    <span class="hm_tg_label">Telegram Linked</span>'
+                    f'   <span class="hm_tg_chatid">Chat ID:&nbsp;<code>{rec.telegram_chat_id}</code></span>'
+                    '  </div>'
                     '</div>'
                 )
                 continue
@@ -121,10 +113,13 @@ class MedicalStaff(models.Model):
                 rec.telegram_deep_link   = False
                 rec.telegram_qr_code     = False
                 rec.telegram_status_html = (
-                    '<div class="alert alert-warning mb-0" role="alert">'
-                    '  <i class="fa fa-exclamation-triangle me-2"></i>'
-                    '  Set <strong>patient_monitoring.telegram_bot_username</strong> '
-                    '  in <em>Settings → Technical → System Parameters</em> to enable QR setup.'
+                    '<div class="hm_tg_status hm_tg_warning">'
+                    '  <span class="hm_tg_icon">&#9888;</span>'
+                    '  <div class="hm_tg_info">'
+                    '    <span class="hm_tg_label">Configuration Required</span>'
+                    '    <span class="hm_tg_hint">Set <strong>patient_monitoring.telegram_bot_username</strong>'
+                    '    in <em>Settings &rarr; Technical &rarr; System Parameters</em> to enable QR setup.</span>'
+                    '  </div>'
                     '</div>'
                 )
                 continue
@@ -137,22 +132,25 @@ class MedicalStaff(models.Model):
 
             if qr_b64:
                 rec.telegram_status_html = (
-                    '<div class="alert alert-info mb-0" role="alert">'
-                    '  <i class="fa fa-qrcode me-2"></i>'
-                    '  <strong>Not yet linked.</strong> '
-                    '  Scan the QR code below with your phone to register.'
+                    '<div class="hm_tg_status hm_tg_unlinked">'
+                    '  <span class="hm_tg_icon">&#8856;</span>'
+                    '  <div class="hm_tg_info">'
+                    '    <span class="hm_tg_label">Not Yet Linked</span>'
+                    '    <span class="hm_tg_hint">Scan the QR code below with your phone to register.</span>'
+                    '  </div>'
                     '</div>'
                 )
             else:
                 rec.telegram_status_html = (
-                    '<div class="alert alert-info mb-0" role="alert">'
-                    '  <i class="fa fa-telegram me-2"></i>'
-                    '  <strong>Not yet linked.</strong> '
-                    f' Open Telegram and search for <strong>@{bot_username}</strong>, '
-                    '  then tap Start to register.'
+                    '<div class="hm_tg_status hm_tg_unlinked">'
+                    '  <span class="hm_tg_icon">&#8856;</span>'
+                    '  <div class="hm_tg_info">'
+                    '    <span class="hm_tg_label">Not Yet Linked</span>'
+                    f'   <span class="hm_tg_hint">Open Telegram and search for <strong>@{bot_username}</strong>,'
+                    '    then tap Start to register.</span>'
+                    '  </div>'
                     '</div>'
                 )
-
 
     @staticmethod
     def _generate_qr_png(data: str):
@@ -177,7 +175,6 @@ class MedicalStaff(models.Model):
             )
             return False
 
-
     @api.onchange('user_id')
     def _onchange_user_id(self):
         """Pre-fill contact fields from the linked user when selected."""
@@ -191,7 +188,6 @@ class MedicalStaff(models.Model):
                     self.user_id.partner_id.phone or
                     self.user_id.partner_id.mobile or ''
                 )
-
 
     def action_view_patients(self):
         self.ensure_one()
@@ -217,9 +213,9 @@ class MedicalStaff(models.Model):
                     'They must scan the QR code again to re-register.'
                 ),
                 'type': 'warning',
+                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
             },
         }
-
 
     _sql_constraints = [
         ('employee_id_unique', 'unique(employee_id)', 'Employee ID must be unique.'),
@@ -234,7 +230,6 @@ class MedicalStaff(models.Model):
         'skip_group_check' is set by _sync_medical_staff_records) because the
         sync already verifies group membership before calling create().
         """
-        # Auto-sync path: group membership was already verified by the caller.
         if self.env.context.get('skip_group_check'):
             return
 

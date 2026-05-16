@@ -17,10 +17,6 @@
                             <span class="hm_stat_n" t-esc="state.totalCount"/>
                             <span class="hm_stat_l">Total</span>
                         </div>
-                        <div class="hm_stat">
-                            <span class="hm_stat_n" t-esc="state.activeCount"/>
-                            <span class="hm_stat_l">Active</span>
-                        </div>
                         <div class="hm_stat hm_stat--live">
                             <span class="hm_stat_n">
                                 <i class="hm_live_dot"/>
@@ -35,10 +31,6 @@
                             <span class="hm_stat_n">—</span>
                             <span class="hm_stat_l">Total</span>
                         </div>
-                        <div class="hm_stat">
-                            <span class="hm_stat_n">—</span>
-                            <span class="hm_stat_l">Active</span>
-                        </div>
                         <div class="hm_stat hm_stat--live">
                             <span class="hm_stat_n">—</span>
                             <span class="hm_stat_l">Telegram</span>
@@ -46,7 +38,6 @@
                     </div>
 
                 </div>
-
             </header>
 
 
@@ -88,6 +79,8 @@
                                               t-esc="specLabel(member.specialization)"/>
                                     </t>
                                 </div>
+                                <!-- Linked system user — user_id is [id, "Name"] or false -->
+                                <span class="hm_row_user" t-esc="userName(member)"/>
                                 <span class="hm_row_desc" t-esc="buildDesc(member)"/>
                             </div>
 
@@ -95,10 +88,6 @@
                                 <span t-attf-class="hm_tag {{ member.telegram_linked ? 'hm_tag--ok' : 'hm_tag--off' }}">
                                     <t t-if="member.telegram_linked">✓ Telegram</t>
                                     <t t-else="">— Telegram</t>
-                                </span>
-                                <span t-attf-class="hm_tag {{ member.active ? 'hm_tag--active' : 'hm_tag--inactive' }}">
-                                    <t t-if="member.active">Active</t>
-                                    <t t-else="">Inactive</t>
                                 </span>
                             </div>
 

@@ -7,26 +7,32 @@ _logger = logging.getLogger(__name__)
 
 
 class Patient(models.Model):
-    _name = 'patient.monitoring.patient'
+    _name        = 'patient.monitoring.patient'
     _description = 'Patient'
-    _inherit = []
-    _rec_name = 'name'
+    _inherit     = []
+    _rec_name    = 'name'
 
     first_name = fields.Char(string='First Name', required=True)
-    last_name = fields.Char(string='Last Name', required=True)
-    name = fields.Char(string='Full Name', compute='_compute_name', store=True)
+    last_name  = fields.Char(string='Last Name',  required=True)
+    name       = fields.Char(string='Full Name',  compute='_compute_name', store=True)
+
     patient_ref = fields.Char(
         string='Patient Reference', required=True, copy=False,
         default=lambda self: self.env['ir.sequence'].next_by_code('patient.monitoring.patient')
     )
+
     date_of_birth = fields.Date(string='Date of Birth', required=True)
-    age = fields.Integer(string='Age', compute='_compute_age', store=True)
-    sex = fields.Selection([('male', 'Male'), ('female', 'Female')], string='Sex', required=True)
-    phone_number = fields.Char(string='Phone Number')
-    email = fields.Char(string='Email')
-    address = fields.Text(string='Address')
+    age           = fields.Integer(string='Age', compute='_compute_age', store=True)
+    sex           = fields.Selection(
+        [('male', 'Male'), ('female', 'Female')],
+        string='Sex', required=True
+    )
+
+    phone_number      = fields.Char(string='Phone Number')
+    email             = fields.Char(string='Email')
+    address           = fields.Text(string='Address')
     emergency_contact = fields.Char(string='Emergency Contact')
-    emergency_phone = fields.Char(string='Emergency Phone')
+    emergency_phone   = fields.Char(string='Emergency Phone')
 
     medical_record_ids = fields.One2many(
         'patient.monitoring.medical.record', 'patient_id', string='Medical Records'
@@ -41,22 +47,23 @@ class Patient(models.Model):
     alert_ids = fields.One2many(
         'patient.monitoring.alert', 'patient_id', string='Alerts'
     )
-    alert_count = fields.Integer(compute='_compute_counts', string='Alert Count')
+    alert_count        = fields.Integer(compute='_compute_counts', string='Alert Count')
     active_alert_count = fields.Integer(compute='_compute_counts', string='Active Alerts')
 
     assigned_staff_id = fields.Many2one(
-        'res.users',
+        'patient.monitoring.staff',
         string='Assigned Medical Staff',
-        domain=lambda self: [('id', 'in', self._get_medical_staff_user_ids())]
+        ondelete='set null',
     )
 
     admission_date = fields.Date(string='Admission Date', default=fields.Date.today)
     discharge_date = fields.Date(string='Discharge Date')
-    notes = fields.Text(string='Additional Notes')
+    notes          = fields.Text(string='Additional Notes')
 
     camera_url = fields.Char(
         string='Camera URL',
-        help='RTSP / HTTP stream URL for this patient\'s bedside camera, e.g. rtsp://192.168.1.10:554/stream'
+        help="RTSP / HTTP stream URL for this patient's bedside camera, "
+             "e.g. rtsp://192.168.1.10:554/stream"
     )
     stream_running = fields.Boolean(
         string='Stream Running',
@@ -64,17 +71,12 @@ class Patient(models.Model):
         copy=False,
     )
 
-    def _get_medical_staff_user_ids(self):
-        """Fetch user IDs in the Medical Staff group via direct SQL — avoids
-        ORM field name differences across Odoo versions."""
-        group = self.env.ref('health_monitoring.group_medical_staff', raise_if_not_found=False)
-        if not group:
-            return []
-        self.env.cr.execute(
-            "SELECT uid FROM res_groups_users_rel WHERE gid = %s",
-            (group.id,)
-        )
-        return [row[0] for row in self.env.cr.fetchall()]
+    monitoring_status = fields.Selection(
+        [('live', 'Live'), ('offline', 'Offline')],
+        string='Monitoring',
+        compute='_compute_monitoring_status',
+        store=False,
+    )
 
     @api.depends('first_name', 'last_name')
     def _compute_name(self):
@@ -88,20 +90,29 @@ class Patient(models.Model):
         for rec in self:
             if rec.date_of_birth:
                 rec.age = today.year - rec.date_of_birth.year - (
-                    (today.month, today.day) < (rec.date_of_birth.month, rec.date_of_birth.day)
+                    (today.month, today.day) <
+                    (rec.date_of_birth.month, rec.date_of_birth.day)
                 )
             else:
                 rec.age = 0
+
+
+    @api.depends('stream_running')
+    def _compute_monitoring_status(self):
+        for rec in self:
+            rec.monitoring_status = 'live' if rec.stream_running else 'offline'
 
     @api.depends('medical_record_ids', 'measurement_ids', 'alert_ids')
     def _compute_counts(self):
         for rec in self:
             rec.medical_record_count = len(rec.medical_record_ids)
-            rec.measurement_count = len(rec.measurement_ids)
-            rec.alert_count = len(rec.alert_ids)
-            rec.active_alert_count = len(
+            rec.measurement_count    = len(rec.measurement_ids)
+            rec.alert_count          = len(rec.alert_ids)
+            rec.active_alert_count   = len(
                 rec.alert_ids.filtered(lambda a: a.state == 'pending')
             )
+
+    # ── FastAPI helpers ───────────────────────────────────────────────────
 
     def _get_fastapi_url(self):
         url = self.env['ir.config_parameter'].sudo().get_param(
@@ -112,7 +123,9 @@ class Patient(models.Model):
     def action_start_stream(self):
         self.ensure_one()
         if not self.camera_url:
-            raise UserError("Please set a Camera URL for this patient before starting the stream.")
+            raise UserError(
+                "Please set a Camera URL for this patient before starting the stream."
+            )
         if self.stream_running:
             raise UserError(f"Stream is already running for patient {self.patient_ref}.")
 
@@ -127,7 +140,7 @@ class Patient(models.Model):
         except requests.exceptions.ConnectionError:
             raise UserError(
                 f"Could not reach the FastAPI service at {base_url}.\n"
-                "Check that it is running and that the URL in Settings -> Technical -> "
+                "Check that it is running and that the URL in Settings → Technical → "
                 "System Parameters (patient_monitoring.fastapi_url) is correct."
             )
         except requests.exceptions.HTTPError as e:
@@ -139,13 +152,13 @@ class Patient(models.Model):
 
         return {
             'type': 'ir.actions.client',
-            'tag': 'display_notification',
+            'tag':  'display_notification',
             'params': {
-                'title': 'Stream Started',
+                'title':   'Stream Started',
                 'message': f'Camera stream is now live for {self.name}.',
-                'type': 'success',
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
+                'type':    'success',
+                'next':    {'type': 'ir.actions.client', 'tag': 'reload'},
+            },
         }
 
     def action_stop_stream(self):
@@ -162,11 +175,10 @@ class Patient(models.Model):
             if response.status_code == 400:
                 _logger.warning(
                     "FastAPI reported no active session for %s — resetting stream flag.",
-                    self.patient_ref
+                    self.patient_ref,
                 )
             else:
                 response.raise_for_status()
-
         except requests.exceptions.ConnectionError:
             raise UserError(f"Could not reach the FastAPI service at {base_url}.")
         except requests.exceptions.HTTPError as e:
@@ -178,44 +190,44 @@ class Patient(models.Model):
 
         return {
             'type': 'ir.actions.client',
-            'tag': 'display_notification',
+            'tag':  'display_notification',
             'params': {
-                'title': 'Stream Stopped',
+                'title':   'Stream Stopped',
                 'message': f'Camera stream stopped for {self.name}.',
-                'type': 'warning',
-                'next': {'type': 'ir.actions.client', 'tag': 'reload'},
-            }
+                'type':    'warning',
+                'next':    {'type': 'ir.actions.client', 'tag': 'reload'},
+            },
         }
 
     def action_view_medical_records(self):
         self.ensure_one()
         return {
-            'type': 'ir.actions.act_window',
-            'name': 'Medical Records',
+            'type':      'ir.actions.act_window',
+            'name':      'Medical Records',
             'res_model': 'patient.monitoring.medical.record',
             'view_mode': 'tree,form',
-            'domain': [('patient_id', '=', self.id)],
-            'context': {'default_patient_id': self.id},
+            'domain':    [('patient_id', '=', self.id)],
+            'context':   {'default_patient_id': self.id},
         }
 
     def action_view_measurements(self):
         self.ensure_one()
         return {
-            'type': 'ir.actions.act_window',
-            'name': 'Measurements',
+            'type':      'ir.actions.act_window',
+            'name':      'Measurements',
             'res_model': 'patient.monitoring.measurement',
             'view_mode': 'tree,form',
-            'domain': [('patient_id', '=', self.id)],
-            'context': {'default_patient_id': self.id},
+            'domain':    [('patient_id', '=', self.id)],
+            'context':   {'default_patient_id': self.id},
         }
 
     def action_view_alerts(self):
         self.ensure_one()
         return {
-            'type': 'ir.actions.act_window',
-            'name': 'Alerts',
+            'type':      'ir.actions.act_window',
+            'name':      'Alerts',
             'res_model': 'patient.monitoring.alert',
             'view_mode': 'tree,form',
-            'domain': [('patient_id', '=', self.id)],
-            'context': {'default_patient_id': self.id},
+            'domain':    [('patient_id', '=', self.id)],
+            'context':   {'default_patient_id': self.id},
         }

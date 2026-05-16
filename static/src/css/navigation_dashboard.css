@@ -404,3 +404,305 @@
 
     .hm_row_name { flex-direction: column; gap: 4px; align-items: flex-start; }
 }
+
+.hm_staff_form {
+    --bg:          #f7f4ef;
+    --bg-row-h:    #edeadc;
+    --rule:        #dbd6ca;
+    --rule-strong: #b8b0a0;
+    --ink:         #18160f;
+    --ink-mid:     #6e6858;
+    --ink-dim:     #a89e8e;
+    --accent:      #2d6a4f;
+    --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+    --mono:  'IBM Plex Mono', 'Consolas', 'Menlo', 'Courier New', monospace;
+    --sans:  system-ui, -apple-system, sans-serif;
+}
+
+.hm_staff_form .o_form_sheet_bg {
+    background: var(--bg) !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+}
+
+.hm_staff_form .o_form_sheet {
+    background: var(--bg) !important;
+    border: none !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+.hm_staff_form .oe_button_box {
+    border-bottom: 1.5px solid var(--ink);
+    padding: 20px 48px 18px;
+    margin: 0;
+    display: flex;
+    gap: 0;
+    background: var(--bg);
+}
+
+.hm_staff_form .oe_stat_button {
+    background: transparent !important;
+    border: none !important;
+    border-right: 1px solid var(--rule) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 6px 24px 6px 0 !important;
+    margin-right: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    cursor: pointer;
+    transition: opacity 0.14s ease;
+}
+
+.hm_staff_form .oe_stat_button:last-child {
+    border-right: none !important;
+}
+
+.hm_staff_form .oe_stat_button:hover { opacity: 0.7; }
+
+.hm_staff_form .oe_stat_button .fa {
+    font-size: 18px;
+    color: var(--ink-dim);
+    width: 20px;
+    text-align: center;
+}
+
+.hm_staff_form .o_stat_info,
+.hm_staff_form .o_field_statinfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+.hm_staff_form .o_stat_value,
+.hm_staff_form .o_field_statinfo .o_stat_value {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+}
+
+.hm_staff_form .o_stat_text,
+.hm_staff_form .o_field_statinfo .o_stat_text {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    font-weight: 400;
+}
+
+.hm_staff_form .o_stat_value.text-success { color: var(--accent) !important; }
+.hm_staff_form .o_stat_value.text-muted   { color: var(--ink-dim) !important; }
+
+.hm_staff_form .oe_title {
+    padding: 28px 48px 0;
+    border-bottom: none;
+}
+
+.hm_staff_form .oe_title h1 {
+    font-family: var(--serif) !important;
+    font-style: italic;
+    font-size: 46px !important;
+    font-weight: 600 !important;
+    color: var(--ink) !important;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    margin: 0 0 10px;
+    border: none !important;
+}
+
+.hm_staff_form .oe_title h3 {
+    font-family: var(--mono) !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-mid) !important;
+    margin: 0 0 4px;
+    border: none !important;
+}
+
+.hm_staff_form .oe_title h3 .o_field_widget a,
+.hm_staff_form .oe_title h3 .o_field_widget span {
+    color: var(--ink-mid) !important;
+    text-decoration: none !important;
+}
+
+.hm_staff_form .o_group {
+    margin: 0 !important;
+    padding: 0 !important;
+    border-bottom: 1px solid var(--rule);
+    background: var(--bg) !important;
+}
+
+.hm_staff_form .o_group.o_inner_group {
+    border-bottom: none;
+    padding: 24px 48px !important;
+    vertical-align: top;
+    box-sizing: border-box !important;
+    width: 50% !important;
+}
+
+.hm_staff_form .o_horizontal_separator {
+    font-family: var(--mono) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+    color: var(--ink) !important;
+    border-bottom: 1px solid var(--rule) !important;
+    padding: 20px 48px 12px !important;
+    margin: 0 !important;
+    background: var(--bg) !important;
+}
+
+.hm_staff_form td.o_td_label > label,
+.hm_staff_form .o_cell.o_wrap_label > label {
+    font-family: var(--mono) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+    color: var(--ink-mid) !important;
+    white-space: nowrap;
+    min-width: 160px !important;
+}
+
+.hm_staff_form .o_field_widget {
+    background: transparent !important;
+    color: var(--ink) !important;
+    font-size: 15px !important;
+}
+
+.hm_staff_form .o_field_boolean_toggle .form-check-input:checked {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+.hm_staff_form .o_field_html {
+    font-family: var(--sans) !important;
+    font-size: 13px;
+    color: var(--ink-mid);
+}
+
+.hm_staff_form .o_field_html .alert,
+.hm_staff_form .o_field_html [class*="alert-"] {
+    background: var(--bg-row-h) !important;
+    border: 1px solid var(--rule-strong) !important;
+    border-radius: 0 !important;
+    color: var(--ink) !important;
+    font-size: 13px;
+}
+
+.hm_staff_form .o_field_image img {
+    border: 1px solid var(--rule-strong) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.hm_staff_form p.text-center.text-muted {
+    font-family: var(--mono) !important;
+    font-size: 10px !important;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim) !important;
+    text-align: left !important;
+    padding: 0 48px !important;
+}
+
+.hm_staff_form .o_notebook {
+    background: var(--bg) !important;
+    border-top: 1px solid var(--rule) !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+}
+
+.hm_staff_form .o_notebook .nav-tabs {
+    background: var(--bg) !important;
+    border-bottom: 1px solid var(--rule) !important;
+    padding: 0 48px;
+    gap: 0;
+}
+
+.hm_staff_form .o_notebook .nav-tabs .nav-link {
+    font-family: var(--mono) !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+    color: var(--ink-dim) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0 !important;
+    padding: 14px 0 12px !important;
+    margin-right: 32px !important;
+    transition: color 0.14s ease, border-color 0.14s ease;
+}
+
+.hm_staff_form .o_notebook .nav-tabs .nav-link:hover {
+    color: var(--ink) !important;
+}
+
+.hm_staff_form .o_notebook .nav-tabs .nav-link.active {
+    color: var(--ink) !important;
+    border-bottom-color: var(--ink) !important;
+}
+
+.hm_staff_form .o_notebook .tab-content {
+    padding: 0 48px 32px !important;
+    background: var(--bg) !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view {
+    background: var(--bg) !important;
+    border: none !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view thead th {
+    font-family: var(--mono) !important;
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.18em !important;
+    text-transform: uppercase !important;
+    color: var(--ink-dim) !important;
+    background: var(--bg) !important;
+    border-bottom: 1px solid var(--rule-strong) !important;
+    padding: 10px 8px !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view tbody td {
+    font-size: 13px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--rule) !important;
+    background: var(--bg) !important;
+    padding: 12px 8px !important;
+}
+
+.hm_staff_form .o_notebook .o_list_view tbody tr:hover td {
+    background: var(--bg-row-h) !important;
+}
+
+@media (max-width: 800px) {
+    .hm_staff_form .oe_button_box         { padding: 16px 20px 14px; }
+    .hm_staff_form .oe_title              { padding: 20px 20px 0; }
+    .hm_staff_form .oe_title h1           { font-size: 34px !important; }
+    .hm_staff_form .o_horizontal_separator { padding: 16px 20px 10px !important; }
+    .hm_staff_form .o_group.o_inner_group  { padding: 16px 20px !important; }
+    .hm_staff_form .o_notebook .nav-tabs   { padding: 0 20px; }
+    .hm_staff_form .o_notebook .tab-content { padding: 0 20px 24px !important; }
+    .hm_staff_form p.text-center.text-muted { padding: 0 20px !important; }
+}

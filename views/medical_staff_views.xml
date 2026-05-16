@@ -5,7 +5,7 @@
         <field name="name">patient.monitoring.staff.form</field>
         <field name="model">patient.monitoring.staff</field>
         <field name="arch" type="xml">
-            <form string="Medical Staff">
+            <form string="Medical Staff" class="hm_staff_form" create="0">
                 <sheet>
 
                     <div class="oe_button_box" name="button_box">
@@ -25,15 +25,13 @@
                             </div>
                         </button>
 
-                        <button name="action_reset_telegram" type="object"
-                                class="oe_stat_button"
-                                icon="fa-chain-broken"
-                                invisible="telegram_linked">
+                        <div class="oe_stat_button" invisible="telegram_linked">
+                            <i class="fa fa-fw fa-chain-broken o_button_icon" title="Telegram not linked"/>
                             <div class="o_stat_info">
                                 <span class="o_stat_value text-muted">Not Linked</span>
                                 <span class="o_stat_text">Telegram</span>
                             </div>
-                        </button>
+                        </div>
                     </div>
 
                     <div class="oe_title">
@@ -52,37 +50,52 @@
                             <field name="specialization"/>
                             <field name="department"/>
                         </group>
-                        <group string="Contact &amp; Schedule">
+                        <group string="Contact">
                             <field name="phone"/>
                             <field name="email"/>
-                            <field name="shift_start"/>
-                            <field name="shift_end"/>
-                            <field name="active" string="Active Shifts"/>
                         </group>
                     </group>
 
-                    <group string="Telegram Alert Setup" invisible="not id">
-                        <group col="1">
+                    <separator string="Telegram Alert Setup" invisible="not id"/>
+
+                    <div class="hm_tg_telegram_row" invisible="not id">
+
+                        <div class="hm_tg_left_col">
                             <field name="telegram_status_html"
                                    nolabel="1"
                                    widget="html"
                                    readonly="1"/>
-                        </group>
-                        <group col="1" invisible="telegram_linked or not telegram_qr_code">
-                            <field name="telegram_qr_code"
-                                   widget="image"
-                                   options="{'size': [220, 220]}"
-                                   nolabel="1"
-                                   readonly="1"/>
-                        </group>
-                        <field name="telegram_chat_id"
-                               string="Chat ID (auto-filled)"
-                               readonly="1"
-                               invisible="not telegram_chat_id"/>
-                    </group>
+                        </div>
 
-                    <p class="text-center text-muted ps-3"
-                       style="font-size: 0.85rem;"
+                        <div class="hm_tg_right_col">
+
+                            <div class="hm_tg_action_row" invisible="not telegram_linked">
+                                <button name="action_reset_telegram"
+                                        type="object"
+                                        string="Unlink Telegram"
+                                        class="btn hm_unlink_btn"
+                                        confirm="This will unlink this staff member from Telegram. They will need to scan the QR code again to re-register. Continue?"/>
+                            </div>
+
+                            <div invisible="telegram_linked or not telegram_qr_code">
+                                <field name="telegram_qr_code"
+                                       widget="image"
+                                       options="{'size': [220, 220]}"
+                                       nolabel="1"
+                                       readonly="1"
+                                       class="hm_tg_qr_image"/>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <field name="telegram_chat_id"
+                           string="Chat ID (auto-filled)"
+                           readonly="1"
+                           invisible="not telegram_chat_id"/>
+
+                    <p class="text-center ps-3 hm_qr_hint"
                        invisible="not id or telegram_linked or not telegram_qr_code">
                         Scan the QR code above with your phone and Telegram opens automatically.
                         Tap <strong>Start</strong> once to complete registration.
@@ -92,17 +105,21 @@
                         <page string="Managed Patients" name="patients">
                             <field name="patient_ids" readonly="1">
                                 <list>
-                                    <field name="patient_ref"/>
                                     <field name="name"/>
                                     <field name="age"/>
                                     <field name="sex"/>
+                                    <field name="patient_ref"/>
+                                    <field name="monitoring_status"
+                                           string="Monitoring"
+                                           widget="badge"
+                                           decoration-success="monitoring_status == 'live'"
+                                           decoration-secondary="monitoring_status == 'offline'"/>
                                 </list>
                             </field>
                         </page>
                     </notebook>
 
                 </sheet>
-                <chatter/>
             </form>
         </field>
     </record>
@@ -111,7 +128,7 @@
         <field name="name">patient.monitoring.staff.list</field>
         <field name="model">patient.monitoring.staff</field>
         <field name="arch" type="xml">
-            <list string="Medical Staff">
+            <list string="Medical Staff" create="0">
                 <field name="name"/>
                 <field name="user_id" string="System User"/>
                 <field name="employee_id"/>
@@ -122,7 +139,6 @@
                        string="Telegram"
                        widget="boolean_toggle"
                        readonly="1"/>
-                <field name="active" string="Active"/>
             </list>
         </field>
     </record>
@@ -136,13 +152,13 @@
                 <field name="user_id"/>
                 <field name="employee_id"/>
                 <field name="department"/>
-                <filter name="doctors"          string="Doctors"
+                <filter name="doctors"             string="Doctors"
                         domain="[('specialization','=','doctor')]"/>
-                <filter name="nurses"           string="Nurses"
+                <filter name="nurses"              string="Nurses"
                         domain="[('specialization','=','nurse')]"/>
-                <filter name="telegram_linked"  string="Telegram Linked"
+                <filter name="telegram_linked"     string="Telegram Linked"
                         domain="[('telegram_linked','=',True)]"/>
-                <filter name="telegram_missing" string="Telegram Not Set Up"
+                <filter name="telegram_missing"    string="Telegram Not Set Up"
                         domain="[('telegram_linked','=',False)]"/>
                 <separator/>
                 <filter name="group_specialization" string="Specialization"
