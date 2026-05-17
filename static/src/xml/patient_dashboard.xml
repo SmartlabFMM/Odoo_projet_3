@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
 
-    <t t-name="health_monitoring.MedicalStaffDashboard">
+    <t t-name="health_monitoring.PatientDashboard">
         <div class="hm_wrap">
 
             <header class="hm_header">
@@ -9,7 +9,7 @@
 
                     <div>
                         <span class="hm_eyebrow">Patient Monitoring System</span>
-                        <h1 class="hm_title">Medical Staff</h1>
+                        <h1 class="hm_title">Patients</h1>
                     </div>
 
                     <div class="hm_stats" t-if="state.loaded">
@@ -20,9 +20,9 @@
                         <div class="hm_stat hm_stat--live">
                             <span class="hm_stat_n">
                                 <i class="hm_live_dot"/>
-                                <t t-esc="state.telegramCount"/>
+                                <t t-esc="state.liveCount"/>
                             </span>
-                            <span class="hm_stat_l">Telegram</span>
+                            <span class="hm_stat_l">Live</span>
                         </div>
                     </div>
 
@@ -33,9 +33,11 @@
                         </div>
                         <div class="hm_stat hm_stat--live">
                             <span class="hm_stat_n">—</span>
-                            <span class="hm_stat_l">Telegram</span>
+                            <span class="hm_stat_l">Live</span>
                         </div>
                     </div>
+
+                    <button class="hm_new_btn" t-on-click="newPatient">+ New Patient</button>
 
                 </div>
 
@@ -50,7 +52,7 @@
                         <input
                             class="hm_search_input"
                             type="text"
-                            placeholder="SEARCH BY NAME, ROLE, DEPARTMENT, OR ID…"
+                            placeholder="SEARCH BY NAME, PATIENT ID, ASSIGNED STAFF, OR SEX…"
                             autocomplete="off"
                             spellcheck="false"
                             t-att-value="state.searchQuery"
@@ -64,13 +66,24 @@
                         >✕</button>
                     </div>
 
-                    <!-- result count label -->
                     <span class="hm_search_meta" t-if="state.searchQuery">
-                        <t t-esc="filteredStaff.length"/> result<t t-if="filteredStaff.length !== 1">s</t>
+                        <t t-esc="filteredPatients.length"/> result<t t-if="filteredPatients.length !== 1">s</t>
                     </span>
                 </div>
 
             </header>
+
+            <div class="hm_selection_bar" t-if="state.selectedIds.size > 0">
+                <span class="hm_selection_count">
+                    <strong t-esc="state.selectedIds.size"/> patient<t t-if="state.selectedIds.size !== 1">s</t> selected
+                </span>
+                <button class="hm_delete_btn" t-on-click="deleteSelected">
+                    ✕ Delete Selected
+                </button>
+                <button class="hm_selection_clear_btn" t-on-click="clearSelection">
+                    Cancel
+                </button>
+            </div>
 
             <main class="hm_list">
 
@@ -80,54 +93,57 @@
                     </div>
                 </t>
 
-                <t t-elif="state.staff.length === 0">
+                <t t-elif="state.patients.length === 0">
                     <div class="hm_state_msg">
-                        <span class="hm_eyebrow">No staff records found</span>
+                        <span class="hm_eyebrow">No patients found</span>
                         <p class="hm_state_hint">
-                            Go to <strong>Settings → Users</strong>, open a user,
-                            and assign the <strong>Medical Staff</strong> role.
-                            Their profile will appear here automatically.
+                            Click <strong>+ New Patient</strong> above to add your first patient record.
                         </p>
                     </div>
                 </t>
 
-                <t t-elif="filteredStaff.length === 0">
+                <t t-elif="filteredPatients.length === 0">
                     <div class="hm_state_msg">
                         <span class="hm_eyebrow">No results for "<t t-esc="state.searchQuery"/>"</span>
                         <p class="hm_state_hint">
-                            Try a different name, employee ID, department, or role.
+                            Try a different name, patient ID, or assigned staff member.
                         </p>
                         <button class="hm_btn_ghost" t-on-click="clearSearch">Clear search</button>
                     </div>
                 </t>
 
                 <t t-else="">
-                    <t t-foreach="pagedStaff" t-as="member" t-key="member.id">
+                    <t t-foreach="pagedPatients" t-as="patient" t-key="patient.id">
 
-                        <div class="hm_row hm_row--staff"
-                             t-on-click="() => this.openStaff(member.id)"
+                        <div t-attf-class="hm_row hm_row--patient {{ state.selectedIds.has(patient.id) ? 'hm_row--selected' : '' }}"
+                             t-on-click="() => this.openPatient(patient.id)"
                              role="button"
                              tabindex="0"
-                             t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.openStaff(member.id)">
+                             t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.openPatient(patient.id)">
 
-                            <span class="hm_row_idx" t-esc="fmtIdx(member_index)"/>
+                            <label class="hm_row_check" t-on-click.stop="">
+                                <input
+                                    type="checkbox"
+                                    class="hm_checkbox"
+                                    t-att-checked="state.selectedIds.has(patient.id)"
+                                    t-on-change="() => this.toggleSelect(patient.id)"
+                                />
+                            </label>
+
+                            <span class="hm_row_idx" t-esc="fmtIdx(patient_index)"/>
 
                             <div class="hm_row_content">
                                 <div class="hm_row_name">
-                                    <span class="hm_row_title" t-esc="member.name"/>
-                                    <t t-if="member.specialization">
-                                        <span class="hm_spec_badge"
-                                              t-esc="specLabel(member.specialization)"/>
-                                    </t>
+                                    <span class="hm_row_title" t-esc="patient.name"/>
                                 </div>
-                                <span class="hm_row_user" t-esc="userName(member)"/>
-                                <span class="hm_row_desc" t-esc="buildDesc(member)"/>
+                                <span class="hm_row_user" t-esc="patient.patient_ref"/>
+                                <span class="hm_row_desc" t-esc="buildDesc(patient)"/>
                             </div>
 
                             <div class="hm_row_meta">
-                                <span t-attf-class="hm_tag {{ member.telegram_linked ? 'hm_tag--ok' : 'hm_tag--off' }}">
-                                    <t t-if="member.telegram_linked">✓ Telegram</t>
-                                    <t t-else="">— Telegram</t>
+                                <span t-attf-class="hm_tag {{ patient.stream_running ? 'hm_tag--live' : 'hm_tag--off' }}">
+                                    <t t-if="patient.stream_running">● Live</t>
+                                    <t t-else="">— Offline</t>
                                 </span>
                             </div>
 
@@ -144,19 +160,19 @@
 
             </main>
 
-            <div class="hm_pagination" t-if="state.loaded and filteredStaff.length > state.pageSize">
+            <div class="hm_pagination" t-if="state.loaded and filteredPatients.length > state.pageSize">
 
                 <button
                     class="hm_page_btn"
                     t-att-disabled="!hasPrev"
                     t-on-click="prevPage"
                     title="Previous page"
-                >← PREV</button>
+                >← Prev</button>
 
                 <span class="hm_page_info">
                     <strong><t t-esc="paginationFrom"/>–<t t-esc="paginationTo"/></strong>
                     <span class="hm_page_of"> of </span>
-                    <strong><t t-esc="filteredStaff.length"/></strong>
+                    <strong><t t-esc="filteredPatients.length"/></strong>
                 </span>
 
                 <button
@@ -164,10 +180,10 @@
                     t-att-disabled="!hasNext"
                     t-on-click="nextPage"
                     title="Next page"
-                >NEXT →</button>
+                >Next →</button>
 
                 <span class="hm_page_label">
-                    PAGE <strong t-esc="state.currentPage"/> / <strong t-esc="totalPages"/>
+                    Page <strong t-esc="state.currentPage"/> / <strong t-esc="totalPages"/>
                 </span>
 
             </div>

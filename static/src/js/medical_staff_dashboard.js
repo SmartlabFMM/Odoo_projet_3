@@ -4,6 +4,8 @@ import { Component, onMounted, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
+const PAGE_SIZE = 6;
+
 class MedicalStaffDashboard extends Component {
     static template = "health_monitoring.MedicalStaffDashboard";
     static props = {};
@@ -17,6 +19,9 @@ class MedicalStaffDashboard extends Component {
             totalCount:    0,
             telegramCount: 0,
             loaded:        false,
+            searchQuery:   "",
+            currentPage:   1,
+            pageSize:      PAGE_SIZE,
         });
 
         onMounted(() => this._loadStaff());
@@ -47,6 +52,70 @@ class MedicalStaffDashboard extends Component {
         }
     }
 
+    get filteredStaff() {
+        const q = this.state.searchQuery.toLowerCase().trim();
+        if (!q) return this.state.staff;
+        return this.state.staff.filter(s =>
+            s.name.toLowerCase().includes(q) ||
+            (s.employee_id && s.employee_id.toLowerCase().includes(q)) ||
+            (s.department   && s.department.toLowerCase().includes(q)) ||
+            (s.specialization &&
+                this.specLabel(s.specialization).toLowerCase().includes(q))
+        );
+    }
+
+    get totalPages() {
+        return Math.max(1, Math.ceil(this.filteredStaff.length / this.state.pageSize));
+    }
+
+    get pagedStaff() {
+        const start = (this.state.currentPage - 1) * this.state.pageSize;
+        return this.filteredStaff.slice(start, start + this.state.pageSize);
+    }
+
+    get paginationFrom() {
+        if (this.filteredStaff.length === 0) return 0;
+        return (this.state.currentPage - 1) * this.state.pageSize + 1;
+    }
+
+    get paginationTo() {
+        return Math.min(
+            this.state.currentPage * this.state.pageSize,
+            this.filteredStaff.length
+        );
+    }
+
+    get hasPrev() {
+        return this.state.currentPage > 1;
+    }
+
+    get hasNext() {
+        return this.state.currentPage < this.totalPages;
+    }
+
+    onSearch(ev) {
+        this.state.searchQuery = ev.target.value;
+        this.state.currentPage = 1;
+    }
+
+    clearSearch() {
+        this.state.searchQuery = "";
+        this.state.currentPage = 1;
+    }
+
+    prevPage() {
+        if (this.hasPrev) this.state.currentPage--;
+    }
+
+    nextPage() {
+        if (this.hasNext) this.state.currentPage++;
+    }
+
+    goToPage(n) {
+        const clamped = Math.max(1, Math.min(n, this.totalPages));
+        this.state.currentPage = clamped;
+    }
+
     openStaff(id) {
         this.actionService.doAction({
             type:      "ir.actions.act_window",
@@ -57,8 +126,9 @@ class MedicalStaffDashboard extends Component {
         });
     }
 
-    fmtIdx(i) {
-        return String(i + 1).padStart(2, "0");
+    fmtIdx(localIndex) {
+        const globalIndex = (this.state.currentPage - 1) * this.state.pageSize + localIndex;
+        return String(globalIndex + 1).padStart(2, "0");
     }
 
     specLabel(key) {

@@ -4,7 +4,7 @@
         <field name="name">patient.monitoring.patient.form</field>
         <field name="model">patient.monitoring.patient</field>
         <field name="arch" type="xml">
-            <form string="Patient">
+            <form string="Patient" class="hm_patient_form">
                 <header>
                     <button name="action_start_stream"
                             string="Start Stream"
@@ -25,11 +25,11 @@
                         </button>
                         <button name="action_view_measurements" type="object"
                                 class="oe_stat_button" icon="fa-heartbeat">
-                            <field name="measurement_count" widget="statinfo" string="Measurements"/>
+                            <field name="session_count" widget="statinfo" string="Sessions"/>
                         </button>
                         <button name="action_view_alerts" type="object"
                                 class="oe_stat_button" icon="fa-bell">
-                            <field name="active_alert_count" widget="statinfo" string="Active Alerts"/>
+                            <field name="active_alert_count" widget="statinfo" string="Recorded Alerts"/>
                         </button>
                         <button name="action_start_stream" type="object"
                                 class="oe_stat_button" icon="fa-video-camera"
@@ -56,6 +56,7 @@
                         </h1>
                         <h3><field name="patient_ref" readonly="1"/></h3>
                     </div>
+
                     <group>
                         <group string="Personal Information">
                             <field name="date_of_birth"/>
@@ -72,16 +73,30 @@
                             <field name="emergency_phone"/>
                         </group>
                     </group>
+
                     <group string="Address">
                         <field name="address" nolabel="1"/>
                     </group>
+
                     <group string="Camera and Stream">
-                        <field name="camera_url"
-                               placeholder="rtsp://192.168.1.x:554/stream"
-                               readonly="stream_running"/>
-                        <field name="stream_running" readonly="1" string="Stream Status"
-                               options="{'terminology': {'true_string': '🔴 Live', 'false_string': 'Offline'}}"/>
+                        <group>
+                            <field name="has_consented"
+                                   string="Patient Consent"
+                                   widget="boolean_toggle"/>
+                            <field name="camera_url"
+                                   placeholder="rtsp://192.168.1.x:554/stream"
+                                   readonly="stream_running"/>
+                            <field name="stream_running" invisible="1"/>
+                            <label string="Stream Status" for="stream_running"/>
+                            <div>
+                                <span class="fw-bold text-success"
+                                      invisible="not stream_running">ONLINE</span>
+                                <span class="text-muted"
+                                      invisible="stream_running">OFFLINE</span>
+                            </div>
+                        </group>
                     </group>
+
                 </sheet>
             </form>
         </field>
@@ -156,7 +171,7 @@
         </field>
     </record>
 
-    <record id="action_patient" model="ir.actions.act_window">
+    <record id="action_patient_list" model="ir.actions.act_window">
         <field name="name">Patients</field>
         <field name="res_model">patient.monitoring.patient</field>
         <field name="view_mode">list,kanban,form</field>
@@ -165,4 +180,12 @@
             <p class="o_view_nocontent_smiling_face">Add your first patient!</p>
         </field>
     </record>
+
+    <delete model="ir.actions.act_window" id="action_patient"/>
+
+    <record id="action_patient" model="ir.actions.client">
+        <field name="name">Patients</field>
+        <field name="tag">health_monitoring.patient_dashboard</field>
+    </record>
+
 </odoo>

@@ -187,7 +187,7 @@
 
 .hm_row_desc {
     font-size: 13px;
-    color: var(--ink-dim);
+    color: var(--ink-mid);
     line-height: 1.5;
     max-width: 440px;
 }
@@ -351,7 +351,7 @@
 }
 
 .hm_tag--off {
-    color: var(--ink-dim);
+    color: var(--ink-mid);
     border-color: var(--rule-strong);
 }
 

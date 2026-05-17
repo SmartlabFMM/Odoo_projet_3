@@ -20,17 +20,36 @@ class NavigationDashboard extends Component {
         });
 
         onMounted(async () => {
-            try {
-                const [patientCount, staffCount, liveCount] = await Promise.all([
-                    this.orm.searchCount("patient.monitoring.patient", []),
-                    this.orm.searchCount("patient.monitoring.staff",   [["active", "=", true]]),
-                    this.orm.searchCount("patient.monitoring.patient", [["stream_running", "=", true]]),
-                ]);
-                Object.assign(this.state, { patientCount, staffCount, liveCount, loaded: true });
-            } catch (_e) {
-                this.state.loaded = true;
-            }
+            await this._loadCounts();
         });
+    }
+
+    async _loadCounts() {
+        try {
+            this.state.patientCount = await this.orm.searchCount(
+                "patient.monitoring.patient", []
+            );
+        } catch (e) {
+            console.error("[NavigationDashboard] patientCount failed:", e);
+        }
+
+        try {
+            this.state.staffCount = await this.orm.searchCount(
+                "patient.monitoring.staff", []
+            );
+        } catch (e) {
+            console.error("[NavigationDashboard] staffCount failed:", e);
+        }
+
+        try {
+            this.state.liveCount = await this.orm.searchCount(
+                "patient.monitoring.patient", [["stream_running", "=", true]]
+            );
+        } catch (e) {
+            console.error("[NavigationDashboard] liveCount failed:", e);
+        }
+
+        this.state.loaded = true;
     }
 
     navigateTo(xmlId) {

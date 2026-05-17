@@ -23,23 +23,26 @@ class ResUsers(models.Model):
         if not self.ids:
             return
 
-        base_user_group = self.env.ref('base.group_user', raise_if_not_found=False)
-        if not base_user_group:
+        medical_staff_group = self.env.ref(
+            'health_monitoring.group_medical_staff',
+            raise_if_not_found=False,
+        )
+        if not medical_staff_group:
             return
 
         self.env.cr.execute(
             "SELECT uid FROM res_groups_users_rel WHERE gid = %s AND uid = ANY(%s)",
-            (base_user_group.id, list(self.ids)),
+            (medical_staff_group.id, list(self.ids)),
         )
-        internal_user_ids = [row[0] for row in self.env.cr.fetchall()]
-        if not internal_user_ids:
+        medical_staff_user_ids = [row[0] for row in self.env.cr.fetchall()]
+        if not medical_staff_user_ids:
             return
 
         Staff = self.env['patient.monitoring.staff'].sudo().with_context(
             skip_group_check=True
         )
 
-        for user in self.browse(internal_user_ids):
+        for user in self.browse(medical_staff_user_ids):
             existing = Staff.search([('user_id', '=', user.id)], limit=1)
             if existing:
                 continue

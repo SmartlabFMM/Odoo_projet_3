@@ -42,7 +42,7 @@ class Patient(models.Model):
     measurement_ids = fields.One2many(
         'patient.monitoring.measurement', 'patient_id', string='Measurements'
     )
-    measurement_count = fields.Integer(compute='_compute_counts', string='Measurement Count')
+    session_count = fields.Integer(compute='_compute_counts', string='Session Count')
 
     alert_ids = fields.One2many(
         'patient.monitoring.alert', 'patient_id', string='Alerts'
@@ -69,6 +69,12 @@ class Patient(models.Model):
         string='Stream Running',
         default=False,
         copy=False,
+    )
+    has_consented = fields.Boolean(
+        string='Patient Consent',
+        default=False,
+        copy=False,
+        help="The patient has given informed consent for remote monitoring and video streaming.",
     )
 
     monitoring_status = fields.Selection(
@@ -106,13 +112,14 @@ class Patient(models.Model):
     def _compute_counts(self):
         for rec in self:
             rec.medical_record_count = len(rec.medical_record_ids)
-            rec.measurement_count    = len(rec.measurement_ids)
+            session_ids = rec.measurement_ids.filtered(
+                lambda m: m.stream_session_id
+            ).mapped('stream_session_id')
+            rec.session_count = len(set(session_ids))
             rec.alert_count          = len(rec.alert_ids)
             rec.active_alert_count   = len(
                 rec.alert_ids.filtered(lambda a: a.state == 'pending')
             )
-
-    # ── FastAPI helpers ───────────────────────────────────────────────────
 
     def _get_fastapi_url(self):
         url = self.env['ir.config_parameter'].sudo().get_param(
@@ -122,6 +129,11 @@ class Patient(models.Model):
 
     def action_start_stream(self):
         self.ensure_one()
+        if not self.has_consented:
+            raise UserError(
+                "This patient has not given consent for remote monitoring. "
+                "Please check the 'Patient Consent' box on the patient form before starting the stream."
+            )
         if not self.camera_url:
             raise UserError(
                 "Please set a Camera URL for this patient before starting the stream."
