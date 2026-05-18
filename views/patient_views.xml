@@ -80,12 +80,17 @@
 
                     <group string="Camera and Stream">
                         <group>
+                            <!-- Use Odoo-native help attribute so the ? tooltip icon
+                                 renders identically to the Alert Thresholds icon in
+                                 the medical record form. -->
                             <field name="has_consented"
+                                   widget="boolean_toggle"
                                    string="Patient Consent"
-                                   widget="boolean_toggle"/>
+                                   help="The patient has given informed consent for remote monitoring and video streaming."/>
                             <field name="camera_url"
                                    placeholder="rtsp://192.168.1.x:554/stream"
-                                   readonly="stream_running"/>
+                                   readonly="stream_running"
+                                   help="RTSP / HTTP stream URL for this patient's bedside camera, e.g. rtsp://192.168.1.10:554/stream"/>
                             <field name="stream_running" invisible="1"/>
                             <label string="Stream Status" for="stream_running"/>
                             <div>

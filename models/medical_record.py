@@ -33,8 +33,14 @@ class MedicalRecord(models.Model):
     prescriptions = fields.Text(string='Prescriptions')
     notes = fields.Text(string='Clinical Notes')
 
-    attending_staff_id = fields.Many2one(
-        'patient.monitoring.staff', string='Attending Staff'
+    drafting_staff_id = fields.Many2one(
+        'patient.monitoring.staff',
+        string='Drafting Staff',
+        readonly=True,
+        help='Automatically set to the staff account that created or last confirmed this record.',
+        default=lambda self: self.env['patient.monitoring.staff'].search(
+            [('user_id', '=', self.env.uid)], limit=1
+        ),
     )
 
     measurement_ids = fields.One2many(
@@ -68,7 +74,26 @@ class MedicalRecord(models.Model):
     max_temperature = fields.Float(string='Max Temperature (°C)')
 
     def action_confirm(self):
-        self.write({'state': 'confirmed'})
+        # Resolve the staff record linked to whoever is clicking Confirm.
+        confirming_staff = self.env['patient.monitoring.staff'].search(
+            [('user_id', '=', self.env.uid)], limit=1
+        )
+
+        for record in self:
+            # Enforce a single confirmed record per patient — archive all others.
+            others = self.search([
+                ('patient_id', '=', record.patient_id.id),
+                ('state',      '=', 'confirmed'),
+                ('id',         '!=', record.id),
+            ])
+            if others:
+                others.write({'state': 'archived'})
+
+            # Update state and stamp the confirming staff account.
+            vals = {'state': 'confirmed'}
+            if confirming_staff:
+                vals['drafting_staff_id'] = confirming_staff.id
+            record.write(vals)
 
     def action_archive_record(self):
         self.write({'state': 'archived'})

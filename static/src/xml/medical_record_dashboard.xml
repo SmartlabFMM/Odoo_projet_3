@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="health_monitoring.MedicalRecordDashboard">
+        <div class="hm_wrap">
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 HEADER
+            ════════════════════════════════════════════════════════════════ -->
+            <header class="hm_header">
+                <div class="hm_header_top">
+
+                    <!-- Standard (all records) mode -->
+                    <div t-if="!isFiltered">
+                        <span class="hm_eyebrow">Patient Monitoring System</span>
+                        <h1 class="hm_title">Medical Records</h1>
+                    </div>
+
+                    <!-- Patient-filtered mode: breadcrumb back to the patient -->
+                    <div t-else="">
+                        <span class="hm_eyebrow">
+                            <button
+                                class="hm_back_btn"
+                                t-on-click="backToPatient"
+                                title="Back to patient record"
+                            >← Patients</button>
+                            <span class="hm_eyebrow_sep"> / </span>
+                            <span t-esc="patientName"/>
+                        </span>
+                        <h1 class="hm_title">Medical Records</h1>
+                    </div>
+
+                    <!-- Stats: loaded -->
+                    <div class="hm_stats" t-if="state.loaded">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="state.totalCount"/>
+                            <span class="hm_stat_l">Total</span>
+                        </div>
+                        <div class="hm_stat hm_stat--live">
+                            <span class="hm_stat_n">
+                                <i class="hm_live_dot"/>
+                                <t t-esc="state.confirmedCount"/>
+                            </span>
+                            <span class="hm_stat_l">Confirmed</span>
+                        </div>
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="state.archivedCount"/>
+                            <span class="hm_stat_l">Archived</span>
+                        </div>
+                    </div>
+
+                    <!-- Stats: skeleton while loading -->
+                    <div class="hm_stats" t-if="!state.loaded">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Total</span>
+                        </div>
+                        <div class="hm_stat hm_stat--live">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Confirmed</span>
+                        </div>
+                        <div class="hm_stat">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Archived</span>
+                        </div>
+                    </div>
+
+                    <button class="hm_new_btn" t-on-click="newRecord">+ New Record</button>
+
+                </div>
+
+                <!-- Search bar — only rendered once data is ready -->
+                <div class="hm_search_row" t-if="state.loaded">
+                    <div class="hm_search_wrap">
+                        <span class="hm_search_icon">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="11" cy="11" r="7"/>
+                                <path d="M16.5 16.5L22 22"/>
+                            </svg>
+                        </span>
+                        <input
+                            class="hm_search_input"
+                            type="text"
+                            placeholder="SEARCH BY REF, PATIENT, STAFF, TYPE, OR STATUS…"
+                            autocomplete="off"
+                            spellcheck="false"
+                            t-att-value="state.searchQuery"
+                            t-on-input="onSearch"
+                        />
+                        <button
+                            class="hm_search_clear"
+                            t-if="state.searchQuery"
+                            t-on-click="clearSearch"
+                            title="Clear search"
+                        >✕</button>
+                    </div>
+
+                    <span class="hm_search_meta" t-if="state.searchQuery">
+                        <t t-esc="filteredRecords.length"/> result<t t-if="filteredRecords.length !== 1">s</t>
+                    </span>
+                </div>
+
+            </header>
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 SELECTION ACTION BAR (visible when rows are checked)
+            ════════════════════════════════════════════════════════════════ -->
+            <div class="hm_selection_bar" t-if="state.selectedIds.size > 0">
+                <span class="hm_selection_count">
+                    <strong t-esc="state.selectedIds.size"/> record<t t-if="state.selectedIds.size !== 1">s</t> selected
+                </span>
+                <button class="hm_delete_btn" t-on-click="deleteSelected">
+                    ✕ Delete Selected
+                </button>
+                <button class="hm_selection_clear_btn" t-on-click="clearSelection">
+                    Cancel
+                </button>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 LIST
+            ════════════════════════════════════════════════════════════════ -->
+            <main class="hm_list">
+
+                <!-- Loading skeleton -->
+                <t t-if="!state.loaded">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">Loading…</span>
+                    </div>
+                </t>
+
+                <!-- Truly empty (no records exist yet) -->
+                <t t-elif="state.records.length === 0">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">No medical records found</span>
+                        <p class="hm_state_hint">
+                            Click <strong>+ New Record</strong> above to create the first medical record.
+                        </p>
+                    </div>
+                </t>
+
+                <!-- Search yielded no matches -->
+                <t t-elif="filteredRecords.length === 0">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">No results for "<t t-esc="state.searchQuery"/>"</span>
+                        <p class="hm_state_hint">
+                            Try a different reference, patient name, attending staff, or record type.
+                        </p>
+                        <button class="hm_btn_ghost" t-on-click="clearSearch">Clear search</button>
+                    </div>
+                </t>
+
+                <!-- Record rows -->
+                <t t-else="">
+                    <t t-foreach="pagedRecords" t-as="record" t-key="record.id">
+
+                        <div
+                            t-attf-class="hm_row hm_row--record {{ state.selectedIds.has(record.id) ? 'hm_row--selected' : '' }}"
+                            t-on-click="() => this.openRecord(record.id)"
+                            role="button"
+                            tabindex="0"
+                            t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.openRecord(record.id)"
+                        >
+                            <!-- Checkbox -->
+                            <label class="hm_row_check" t-on-click.stop="">
+                                <input
+                                    type="checkbox"
+                                    class="hm_checkbox"
+                                    t-att-checked="state.selectedIds.has(record.id)"
+                                    t-on-change="() => this.toggleSelect(record.id)"
+                                />
+                            </label>
+
+                            <!-- Row index -->
+                            <span class="hm_row_idx" t-esc="fmtIdx(record_index)"/>
+
+                            <!-- Main content block -->
+                            <div class="hm_row_content">
+                                <div class="hm_row_name">
+                                    <span class="hm_row_title" t-esc="record.name"/>
+                                    <t t-if="record.record_type">
+                                        <span class="hm_rec_type_badge" t-esc="typeLabel(record.record_type)"/>
+                                    </t>
+                                </div>
+                                <!-- Patient name in the purple accent style (hm_row_user) -->
+                                <span class="hm_row_user">
+                                    <t t-if="record.patient_id">
+                                        <t t-esc="record.patient_id[1]"/>
+                                    </t>
+                                    <t t-else="">—</t>
+                                </span>
+                                <!-- Subtitle: date · attending staff -->
+                                <span class="hm_row_desc" t-esc="buildDesc(record)"/>
+                            </div>
+
+                            <!-- Status tag -->
+                            <div class="hm_row_meta">
+                                <span t-attf-class="hm_tag {{ stateTagClass(record.state) }}"
+                                      t-esc="stateLabel(record.state)"/>
+                            </div>
+
+                            <!-- Chevron arrow -->
+                            <span class="hm_row_arrow">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                                </svg>
+                            </span>
+
+                        </div>
+
+                    </t>
+                </t>
+
+            </main>
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 PAGINATION
+            ════════════════════════════════════════════════════════════════ -->
+            <div class="hm_pagination" t-if="state.loaded and filteredRecords.length > state.pageSize">
+
+                <button
+                    class="hm_page_btn"
+                    t-att-disabled="!hasPrev"
+                    t-on-click="prevPage"
+                    title="Previous page"
+                >← Prev</button>
+
+                <span class="hm_page_info">
+                    <strong><t t-esc="paginationFrom"/>–<t t-esc="paginationTo"/></strong>
+                    <span class="hm_page_of"> of </span>
+                    <strong><t t-esc="filteredRecords.length"/></strong>
+                </span>
+
+                <button
+                    class="hm_page_btn"
+                    t-att-disabled="!hasNext"
+                    t-on-click="nextPage"
+                    title="Next page"
+                >Next →</button>
+
+                <span class="hm_page_label">
+                    Page <strong t-esc="state.currentPage"/> / <strong t-esc="totalPages"/>
+                </span>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 FOOTER
+            ════════════════════════════════════════════════════════════════ -->
+            <footer class="hm_footer">
+                <span>Health Monitoring &amp; AI Alerts</span>
+                <span class="hm_footer_sep">·</span>
+                <span>Smartlab FMM</span>
+            </footer>
+
+        </div>
+    </t>
+
+</templates>

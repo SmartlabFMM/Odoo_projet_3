@@ -65,7 +65,7 @@ class NavigationDashboard extends Component {
     }
 
     openMedicalRecords() {
-        this.navigateTo("health_monitoring.action_medical_record");
+        this.navigateTo("health_monitoring.action_medical_records_client");
     }
 
     openReports() {

@@ -30,10 +30,13 @@
     'assets': {
         'web.assets_backend': [
             'health_monitoring/static/src/css/dashboard_shared.css',
+            'health_monitoring/static/src/js/medical_record_dashboard.js',
             'health_monitoring/static/src/js/medical_staff_dashboard.js',
             'health_monitoring/static/src/js/navigation_dashboard.js',
             'health_monitoring/static/src/js/patient_dashboard.js',
             'health_monitoring/static/src/js/vitals_chart_widget.js',
+            'health_monitoring/static/src/js/medical_record_dashboard.js',
+            'health_monitoring/static/src/xml/medical_record_dashboard.xml',
             'health_monitoring/static/src/xml/medical_staff_dashboard.xml',
             'health_monitoring/static/src/xml/navigation_dashboard.xml',
             'health_monitoring/static/src/xml/patient_dashboard.xml',

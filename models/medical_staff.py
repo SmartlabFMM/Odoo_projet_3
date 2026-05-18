@@ -190,14 +190,20 @@ class MedicalStaff(models.Model):
                 )
 
     def action_view_patients(self):
+        """
+        Open the styled Patient Dashboard filtered to this staff member's
+        patients.  The dashboard reads `staff_id` / `staff_name` from the
+        action context and applies the appropriate domain filter.
+        """
         self.ensure_one()
         return {
-            'type':      'ir.actions.act_window',
-            'name':      'Patients',
-            'res_model': 'patient.monitoring.patient',
-            'view_mode': 'list,kanban,form',
-            'domain':    [('assigned_staff_id', '=', self.id)],
-            'context':   {'default_assigned_staff_id': self.id},
+            'type':    'ir.actions.client',
+            'tag':     'health_monitoring.patient_dashboard',
+            'name':    f'{self.name} — Patients',
+            'context': {
+                'staff_id':   self.id,
+                'staff_name': self.name,
+            },
         }
 
     def action_reset_telegram(self):

@@ -593,3 +593,350 @@
         padding-bottom: 10px;
     }
 }
+/* ── Staff-filtered breadcrumb back button ───────────────────────────────── */
+
+.hm_back_btn {
+    display:        inline-flex;
+    align-items:    center;
+    border:         none;
+    background:     transparent;
+    padding:        0;
+    margin:         0;
+    font-family:    monospace;
+    font-size:      0.72rem;
+    font-weight:    700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color:          rgba(91, 79, 207, 0.75);
+    cursor:         pointer;
+    transition:     color 0.1s ease;
+    line-height:    1;
+}
+
+.hm_back_btn:hover,
+.hm_back_btn:focus {
+    color:   rgba(91, 79, 207, 1);
+    outline: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.hm_eyebrow_sep {
+    margin:  0 0.2em;
+    color:   #aaa;
+    font-family: monospace;
+    font-size: 0.72rem;
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   Medical Record Dashboard — row layout & new tag variants
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Row grid: checkbox | index | content | status-tag | arrow
+   Matches the same column rhythm as hm_row--patient.             */
+.hm_row.hm_row--record {
+    grid-template-columns: 36px 40px 1fr auto auto;
+    padding-top:    13px;
+    padding-bottom: 13px;
+}
+
+/* ── Record-type badge ──────────────────────────────────────────────────── */
+/* Inline next to the record reference, styled like hm_spec_badge but with
+   a harder, more brutalist rectangular border instead of a pill.          */
+.hm_rec_type_badge {
+    display:        inline-block;
+    vertical-align: middle;
+    margin-left:    10px;
+    padding:        2px 8px;
+    border:         1.5px solid #1a1a2e;
+    background:     transparent;
+    font-family:    monospace;
+    font-size:      0.58rem;
+    font-weight:    800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          #1a1a2e;
+    line-height:    1.5;
+    white-space:    nowrap;
+}
+
+/* ── Status tag variants (extend the base .hm_tag defined in              ──
+   navigation_dashboard.css)                                               */
+
+/* Draft — amber / warm warning tone */
+.hm_tag--draft {
+    background:  transparent;
+    color:       #946800 !important;
+    border-color:#946800 !important;
+}
+
+/* Archived — muted slate, lower visual weight than confirmed/draft */
+.hm_tag--arc {
+    background:  transparent;
+    color:       #5a6270 !important;
+    border-color:#5a6270 !important;
+}
+
+/* ── Responsive tweaks ─────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+    .hm_row.hm_row--record {
+        grid-template-columns: 32px 32px 1fr auto auto;
+        padding-top:    10px;
+        padding-bottom: 10px;
+    }
+
+    .hm_rec_type_badge {
+        display: none; /* hide type badge on small screens; shown in desc line */
+    }
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   Medical Record Form — Swiss Brutalism
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Title / Reference ─────────────────────────────────────────────────── */
+.hm_record_form .oe_title h1,
+.hm_record_form .oe_title h1 .o_field_widget,
+.hm_record_form .oe_title h1 .o_field_widget span,
+.hm_record_form .oe_title h1 input {
+    font-size:      3.5rem !important;
+    font-weight:    700 !important;
+    letter-spacing: -0.01em;
+    line-height:    1.15 !important;
+    font-family:    monospace !important;
+}
+
+.hm_record_form .oe_title h3,
+.hm_record_form .oe_title h3 .o_field_widget,
+.hm_record_form .oe_title h3 .o_field_widget .o_form_uri {
+    font-size:      1.15rem !important;
+    font-weight:    600 !important;
+    color:          rgba(91, 79, 207, 0.82) !important;
+    letter-spacing: 0.01em;
+}
+
+/* ── Section separators ────────────────────────────────────────────────── */
+.hm_record_form .o_horizontal_separator {
+    font-family:    monospace !important;
+    font-size:      0.65rem !important;
+    font-weight:    800 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color:          #1a1a2e !important;
+    border-top:     none !important;
+    border-bottom:  2.5px solid #1a1a2e !important;
+    padding-bottom: 5px !important;
+    margin-top:     28px !important;
+    margin-bottom:  18px !important;
+}
+
+/* ── Clinical text areas ───────────────────────────────────────────────── */
+.hm_record_form .o_field_text textarea {
+    border:         2px solid #1a1a2e !important;
+    border-radius:  0 !important;
+    box-shadow:     3px 3px 0 #1a1a2e !important;
+    font-family:    monospace !important;
+    font-size:      0.85rem !important;
+    line-height:    1.6 !important;
+    padding:        10px 12px !important;
+    resize:         vertical !important;
+    min-height:     90px;
+    transition:     box-shadow 0.08s ease, border-color 0.08s ease !important;
+    background:     #fff !important;
+}
+
+.hm_record_form .o_field_text textarea:focus {
+    box-shadow:   3px 3px 0 rgba(91, 79, 207, 0.55) !important;
+    border-color: #1a1a2e !important;
+    outline:      none !important;
+}
+
+.hm_record_form .o_field_text textarea::placeholder {
+    color:       #1a1a2e !important;
+    opacity:     0.55 !important;
+    font-style:  italic !important;
+}
+
+/* ── Vital Sign Grid ───────────────────────────────────────────────────── */
+.hm_vitals_grid {
+    display:               grid;
+    grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+    gap:                   14px;
+    margin:                0 0 24px;
+}
+
+.hm_vital_block {
+    border:      2.5px solid #1a1a2e;
+    box-shadow:  4px 4px 0 #1a1a2e;
+    background:  #fff;
+    padding:     14px 16px 14px;
+    transition:  box-shadow 0.08s ease, transform 0.08s ease;
+}
+
+.hm_vital_block:focus-within {
+    box-shadow: 4px 4px 0 rgba(91, 79, 207, 0.55);
+    transform:  translate(-1px, -1px);
+}
+
+.hm_vital_label {
+    font-family:    monospace;
+    font-size:      0.62rem;
+    font-weight:    800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color:          #1a1a2e;
+    margin-bottom:  1px;
+}
+
+.hm_vital_unit {
+    font-family:    monospace;
+    font-size:      0.72rem;
+    font-weight:    400;
+    color:          rgba(91, 79, 207, 0.75);
+    letter-spacing: 0.06em;
+    margin-bottom:  10px;
+    border-bottom:  1.5px solid #1a1a2e;
+    padding-bottom: 7px;
+}
+
+.hm_vital_range_row {
+    display:     flex;
+    align-items: center;
+    gap:         8px;
+}
+
+.hm_vital_minmax {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    gap:            3px;
+    min-width:      0;
+}
+
+.hm_vital_minmax_label {
+    font-family:    monospace;
+    font-size:      0.52rem;
+    font-weight:    800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color:          #888;
+    line-height:    1;
+}
+
+.hm_vital_sep {
+    font-family: monospace;
+    font-weight: 800;
+    color:       #1a1a2e;
+    font-size:   1rem;
+    flex-shrink: 0;
+    margin-top:  12px; /* align with input row, below the MIN/MAX label */
+}
+
+/* Float inputs inside vital blocks */
+.hm_vital_minmax .o_field_widget input.o_input {
+    border:        1.5px solid #1a1a2e !important;
+    border-radius: 0 !important;
+    box-shadow:    none !important;
+    font-family:   monospace !important;
+    font-size:     1.05rem !important;
+    font-weight:   700 !important;
+    padding:       5px 7px !important;
+    text-align:    center !important;
+    width:         100% !important;
+    color:         #1a1a2e !important;
+    background:    #fafafa !important;
+}
+
+.hm_vital_minmax .o_field_widget input.o_input:focus {
+    box-shadow:   2px 2px 0 rgba(91, 79, 207, 0.50) !important;
+    background:   #fff !important;
+    outline:      none !important;
+}
+
+/* ── Notebook: Measurements list ───────────────────────────────────────── */
+.hm_record_form .o_notebook .nav-link {
+    font-family:    monospace;
+    font-size:      0.7rem;
+    font-weight:    800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          #555;
+    border-radius:  0 !important;
+    border:         2px solid transparent;
+    padding:        8px 18px;
+    transition:     color 0.08s, border-color 0.08s;
+}
+
+.hm_record_form .o_notebook .nav-link.active {
+    color:           #1a1a2e !important;
+    border-color:    #1a1a2e !important;
+    border-bottom:   2px solid #fff !important;
+    background:      #fff !important;
+    font-weight:     800;
+}
+
+.hm_record_form .o_notebook .o_list_view thead th {
+    font-size:      0.8rem;
+    font-weight:    700;
+    color:          #2c2c3a !important;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.hm_record_form .o_notebook .o_list_view tbody td {
+    font-size:   0.92rem;
+    color:       #1e1e2d !important;
+    font-weight: 500;
+}
+
+.hm_record_form .o_notebook .o_list_view tbody td:first-child {
+    font-weight:  700;
+    font-family:  monospace;
+    color:        rgba(91, 79, 207, 0.85) !important;
+    font-size:    0.85rem;
+    letter-spacing: 0.02em;
+}
+
+/* ── Confirmed state tag ───────────────────────────────────────────────── */
+.hm_tag--conf {
+    background:  transparent;
+    color:       #1a7a38 !important;
+    border-color:#1a7a38 !important;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+    .hm_vitals_grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .hm_record_form .oe_title h1,
+    .hm_record_form .oe_title h1 .o_field_widget,
+    .hm_record_form .oe_title h1 .o_field_widget span,
+    .hm_record_form .oe_title h1 input {
+        font-size: 2.2rem !important;
+    }
+}
+
+@media (max-width: 500px) {
+    .hm_vitals_grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Medical Record form: full-width sheet (no dead space right of scrollbar) */
+.hm_record_form {
+    --o-form-sheet-max-width: 100% !important;
+}
+
+.hm_record_form .o_form_sheet_bg {
+    justify-content: flex-start !important;
+    align-items:     stretch !important;
+}
+
+.hm_record_form .o_form_sheet,
+.hm_record_form > .o_form_sheet,
+.hm_record_form .o_form_sheet_bg > .o_form_sheet {
+    max-width:  100% !important;
+    width:      100% !important;
+    box-sizing: border-box !important;
+    flex:       1 1 auto !important;
+}

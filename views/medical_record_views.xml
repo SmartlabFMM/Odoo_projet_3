@@ -1,128 +1,339 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         FORM VIEW
+         ══════════════════════════════════════════════════════════════════ -->
     <record id="view_medical_record_form" model="ir.ui.view">
         <field name="name">patient.monitoring.medical.record.form</field>
         <field name="model">patient.monitoring.medical.record</field>
         <field name="arch" type="xml">
-            <form string="Medical Record">
+            <form string="Medical Record" class="hm_record_form">
+
+                <!-- ── Workflow buttons + status bar ─────────────────── -->
                 <header>
-                    <button name="action_confirm" string="Confirm" type="object"
-                        class="btn-primary" invisible="state != 'draft'"/>
-                    <button name="action_archive_record" string="Archive" type="object"
-                        invisible="state != 'confirmed'"/>
-                    <button name="action_reset_draft" string="Reset to Draft" type="object"
-                        invisible="state != 'archived'"/>
-                    <field name="state" widget="statusbar"
-                        statusbar_visible="draft,confirmed,archived"/>
+                    <button name="action_confirm"
+                            string="Confirm"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state == 'confirmed'"
+                            confirm="Confirming this record will archive any previously confirmed record for this patient. Continue?"/>
+
+                    <button name="action_archive_record"
+                            string="Archive"
+                            type="object"
+                            invisible="state == 'archived'"/>
+
+                    <button name="action_reset_draft"
+                            string="Reset to Draft"
+                            type="object"
+                            invisible="state == 'draft'"/>
+
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,confirmed,archived"/>
                 </header>
+
                 <sheet>
-                    <div class="oe_title">
-                        <h1><field name="name" readonly="1"/></h1>
+
+                    <!-- ── Smart buttons ─────────────────────────────── -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_print_report"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-print">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">Report</span>
+                                <span class="o_stat_text">Print</span>
+                            </div>
+                        </button>
                     </div>
-                    <group>
-                        <group string="Record Information">
-                            <field name="patient_id"/>
+
+                    <!-- ── Title: record ref (hero) + patient name (medium) ── -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <h3>
+                            <field name="patient_id"
+                                   placeholder="Select Patient"
+                                   options="{'no_create': True}"/>
+                        </h3>
+                    </div>
+
+                    <!-- ── Record Details ─────────────────────────────── -->
+                    <group string="Record Details">
+                        <group>
                             <field name="date"/>
                             <field name="record_type"/>
-                            <field name="attending_staff_id"/>
+                        </group>
+                        <group>
+                            <field name="drafting_staff_id"
+                                   readonly="1"
+                                   options="{'no_create': True}"/>
+                            <field name="state"
+                                   string="Status"
+                                   widget="badge"
+                                   decoration-success="state == 'confirmed'"
+                                   decoration-warning="state == 'draft'"
+                                   decoration-muted="state == 'archived'"/>
                         </group>
                     </group>
+
+                    <!-- ── Diagnosis & Treatment / Prescriptions & Notes ── -->
+                    <group>
+                        <group string="Diagnosis &amp; Treatment">
+                            <field name="diagnosis"
+                                   placeholder="Enter clinical diagnosis…"/>
+                            <field name="treatment"
+                                   placeholder="Describe the treatment plan…"/>
+                        </group>
+                        <group string="Prescriptions &amp; Notes">
+                            <field name="prescriptions"
+                                   placeholder="List prescriptions and dosages…"/>
+                            <field name="notes"
+                                   placeholder="Additional clinical notes…"/>
+                        </group>
+                    </group>
+
+                    <!-- ── Tabs ──────────────────────────────────────── -->
                     <notebook>
-                        <page string="Clinical Details" name="details">
-                            <group>
-                                <field name="diagnosis"/>
-                                <field name="treatment"/>
-                                <field name="prescriptions"/>
-                                <field name="notes"/>
-                            </group>
+
+                        <!-- 1. Vital Sign Thresholds -->
+                        <page string="Vital Sign Thresholds" name="vital_thresholds">
+
+                            <!-- Section header with tooltip -->
+                            <div class="d-flex align-items-center mb-3">
+                                <span class="text-uppercase fw-bold"
+                                      style="font-size:11px; letter-spacing:.08em;">
+                                    Alert Thresholds
+                                </span>
+                                <i class="fa fa-question-circle text-muted ms-1"
+                                   title="Set the minimum and maximum acceptable range for each vital sign. If both Min and Max are left at 0, that vital sign will be excluded from threshold alerting entirely."/>
+                            </div>
+
+                            <div class="hm_vitals_grid">
+
+                                <div class="hm_vital_block">
+                                    <div class="hm_vital_label">Heart Rate</div>
+                                    <div class="hm_vital_unit">bpm</div>
+                                    <div class="hm_vital_range_row">
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Min</span>
+                                            <field name="min_heart_rate" nolabel="1"/>
+                                        </div>
+                                        <span class="hm_vital_sep">—</span>
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Max</span>
+                                            <field name="max_heart_rate" nolabel="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hm_vital_block">
+                                    <div class="hm_vital_label">Pulse</div>
+                                    <div class="hm_vital_unit">bpm</div>
+                                    <div class="hm_vital_range_row">
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Min</span>
+                                            <field name="min_pulse" nolabel="1"/>
+                                        </div>
+                                        <span class="hm_vital_sep">—</span>
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Max</span>
+                                            <field name="max_pulse" nolabel="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hm_vital_block">
+                                    <div class="hm_vital_label">O&#8322; Saturation</div>
+                                    <div class="hm_vital_unit">%</div>
+                                    <div class="hm_vital_range_row">
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Min</span>
+                                            <field name="min_oxygen_saturation" nolabel="1"/>
+                                        </div>
+                                        <span class="hm_vital_sep">—</span>
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Max</span>
+                                            <field name="max_oxygen_saturation" nolabel="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hm_vital_block">
+                                    <div class="hm_vital_label">Respiratory Rate</div>
+                                    <div class="hm_vital_unit">/min</div>
+                                    <div class="hm_vital_range_row">
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Min</span>
+                                            <field name="min_respiratory_rate" nolabel="1"/>
+                                        </div>
+                                        <span class="hm_vital_sep">—</span>
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Max</span>
+                                            <field name="max_respiratory_rate" nolabel="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hm_vital_block">
+                                    <div class="hm_vital_label">Temperature</div>
+                                    <div class="hm_vital_unit">°C</div>
+                                    <div class="hm_vital_range_row">
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Min</span>
+                                            <field name="min_temperature" nolabel="1"/>
+                                        </div>
+                                        <span class="hm_vital_sep">—</span>
+                                        <div class="hm_vital_minmax">
+                                            <span class="hm_vital_minmax_label">Max</span>
+                                            <field name="max_temperature" nolabel="1"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
                         </page>
-                        <page string="Vital Thresholds" name="thresholds">
-                            <group string="Heart Rate (bpm)">
-                                <field name="min_heart_rate"/>
-                                <field name="max_heart_rate"/>
-                            </group>
-                            <group string="Pulse (bpm)">
-                                <field name="min_pulse"/>
-                                <field name="max_pulse"/>
-                            </group>
-                            <group string="Oxygen Saturation (%)">
-                                <field name="min_oxygen_saturation"/>
-                                <field name="max_oxygen_saturation"/>
-                            </group>
-                            <group string="Respiratory Rate (/min)">
-                                <field name="min_respiratory_rate"/>
-                                <field name="max_respiratory_rate"/>
-                            </group>
-                            <group string="Temperature (°C)">
-                                <field name="min_temperature"/>
-                                <field name="max_temperature"/>
-                            </group>
+
+                        <!-- 2. Associated Measurements -->
+                        <page string="Associated Measurements" name="measurements">
+                            <field name="measurement_ids"
+                                   widget="vitals_chart"
+                                   readonly="1"/>
                         </page>
-                        <page string="Measurements" name="measurements">
-                            <field name="measurement_ids" widget="vitals_chart" nolabel="1"/>
-                        </page>
+
+                        <!-- 3. Attachments -->
                         <page string="Attachments" name="attachments">
-                            <field name="attachments" widget="many2many_binary"/>
+                            <field name="attachments"
+                                   widget="many2many_binary"
+                                   string="Documents &amp; Files"/>
                         </page>
+
                     </notebook>
+
                 </sheet>
             </form>
         </field>
     </record>
 
-    <record id="view_medical_record_tree" model="ir.ui.view">
-        <field name="name">patient.monitoring.medical.record.tree</field>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         LIST VIEW
+         ══════════════════════════════════════════════════════════════════ -->
+    <record id="view_medical_record_list" model="ir.ui.view">
+        <field name="name">patient.monitoring.medical.record.list</field>
         <field name="model">patient.monitoring.medical.record</field>
         <field name="arch" type="xml">
-            <list string="Medical Records">
-                <field name="name"/>
+            <list string="Medical Records"
+                  decoration-muted="state == 'archived'"
+                  decoration-success="state == 'confirmed'"
+                  decoration-warning="state == 'draft'">
+                <field name="name"              string="Reference"/>
                 <field name="patient_id"/>
-                <field name="date"/>
-                <field name="record_type"/>
-                <field name="attending_staff_id"/>
-                <field name="state" widget="badge"
-                    decoration-success="state=='confirmed'"
-                    decoration-warning="state=='draft'"
-                    decoration-muted="state=='archived'"/>
+                <field name="date"              string="Date"/>
+                <field name="record_type"       string="Type"/>
+                <field name="drafting_staff_id" string="Staff"/>
+                <field name="state"
+                       string="Status"
+                       decoration-success="state == 'confirmed'"
+                       decoration-warning="state == 'draft'"
+                       decoration-muted="state == 'archived'"/>
             </list>
         </field>
     </record>
 
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SEARCH VIEW
+         ══════════════════════════════════════════════════════════════════ -->
     <record id="view_medical_record_search" model="ir.ui.view">
         <field name="name">patient.monitoring.medical.record.search</field>
         <field name="model">patient.monitoring.medical.record</field>
         <field name="arch" type="xml">
             <search string="Search Medical Records">
-                <field name="name"/>
-                <field name="patient_id"/>
-                <field name="attending_staff_id"/>
-                <filter name="draft" string="Draft" domain="[('state','=','draft')]"/>
-                <filter name="confirmed" string="Confirmed" domain="[('state','=','confirmed')]"/>
-                <filter name="archived_rec" string="Archived" domain="[('state','=','archived')]"/>
-                <filter name="group_patient" string="Patient" context="{'group_by':'patient_id'}"/>
-                <filter name="group_type" string="Record Type" context="{'group_by':'record_type'}"/>
-                <filter name="group_date" string="Date" context="{'group_by':'date:month'}"/>
+                <field name="name"              string="Reference"/>
+                <field name="patient_id"        string="Patient"/>
+                <field name="drafting_staff_id" string="Staff"/>
+
+                <filter name="filter_draft"
+                        string="Draft"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_confirmed"
+                        string="Confirmed"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="filter_archived"
+                        string="Archived"
+                        domain="[('state', '=', 'archived')]"/>
+
+                <separator/>
+
+                <filter name="filter_consultation"
+                        string="Consultations"
+                        domain="[('record_type', '=', 'consultation')]"/>
+                <filter name="filter_diagnosis"
+                        string="Diagnoses"
+                        domain="[('record_type', '=', 'diagnosis')]"/>
+                <filter name="filter_treatment"
+                        string="Treatments"
+                        domain="[('record_type', '=', 'treatment')]"/>
+                <filter name="filter_lab"
+                        string="Lab Results"
+                        domain="[('record_type', '=', 'lab_result')]"/>
+                <filter name="filter_prescription"
+                        string="Prescriptions"
+                        domain="[('record_type', '=', 'prescription')]"/>
+                <filter name="filter_surgery"
+                        string="Surgeries"
+                        domain="[('record_type', '=', 'surgery')]"/>
+                <filter name="filter_followup"
+                        string="Follow-ups"
+                        domain="[('record_type', '=', 'follow_up')]"/>
+
+                <separator/>
+
+                <filter name="group_patient"
+                        string="Patient"
+                        context="{'group_by': 'patient_id'}"/>
+                <filter name="group_state"
+                        string="Status"
+                        context="{'group_by': 'state'}"/>
+                <filter name="group_type"
+                        string="Record Type"
+                        context="{'group_by': 'record_type'}"/>
+                <filter name="group_staff"
+                        string="Drafting Staff"
+                        context="{'group_by': 'drafting_staff_id'}"/>
             </search>
         </field>
     </record>
 
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         ACTION
+         ══════════════════════════════════════════════════════════════════ -->
     <record id="action_medical_record" model="ir.actions.act_window">
         <field name="name">Medical Records</field>
         <field name="res_model">patient.monitoring.medical.record</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_medical_record_search"/>
+        <field name="context">{'search_default_filter_confirmed': 0}</field>
         <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">Create your first medical record!</p>
+            <p class="o_view_nocontent_smiling_face">
+                No medical records yet.
+            </p>
+            <p>
+                Create a new record from a patient's profile or use the
+                <strong>New</strong> button above.
+            </p>
         </field>
     </record>
 
-    <record id="action_report_medical_record" model="ir.actions.report">
-        <field name="name">Medical Record Report</field>
-        <field name="model">patient.monitoring.medical.record</field>
-        <field name="report_type">qweb-pdf</field>
-        <field name="report_name">health_monitoring.report_medical_record</field>
-        <field name="report_file">health_monitoring.report_medical_record</field>
-        <field name="binding_model_id" ref="model_patient_monitoring_medical_record"/>
-        <field name="binding_type">report</field>
+    <!-- Client action referenced by the menu (loads the JS dashboard) -->
+    <record id="action_medical_records_client" model="ir.actions.client">
+        <field name="name">Medical Records</field>
+        <field name="tag">health_monitoring.medical_record_dashboard</field>
     </record>
+
 </odoo>

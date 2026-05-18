@@ -9,12 +9,30 @@ const PAGE_SIZE = 10;
 
 class PatientDashboard extends Component {
     static template = "health_monitoring.PatientDashboard";
-    static props = {};
+
+    /**
+     * Odoo's action service passes the resolved action record as `action` prop
+     * when a client action component is mounted.  We mark it optional so the
+     * component also works when instantiated directly (e.g. in tests or via
+     * the top-level "Patients" menu entry that has no staff context).
+     */
+    static props = {
+        action: { optional: true },
+    };
 
     setup() {
         this.actionService = useService("action");
         this.orm           = useService("orm");
         this.dialogService = useService("dialog");
+
+        // ── Staff-filter context ──────────────────────────────────────────────
+        // When this dashboard is opened from a Medical Staff record the action
+        // carries context.staff_id / context.staff_name so we can scope the
+        // patient list to that specific staff member.
+        const ctx        = this.props.action?.context ?? {};
+        this.staffId     = ctx.staff_id   || null;
+        this.staffName   = ctx.staff_name || null;
+        this.isFiltered  = Boolean(this.staffId);
 
         this.state = useState({
             patients:    [],
@@ -32,9 +50,14 @@ class PatientDashboard extends Component {
 
     async _loadPatients() {
         try {
+            // Apply staff domain when opened from a staff record
+            const domain = this.isFiltered
+                ? [["assigned_staff_id", "=", this.staffId]]
+                : [];
+
             const patients = await this.orm.searchRead(
                 "patient.monitoring.patient",
-                [],
+                domain,
                 [
                     "name", "first_name", "last_name", "patient_ref",
                     "age", "sex", "assigned_staff_id",
@@ -175,6 +198,22 @@ class PatientDashboard extends Component {
         this.actionService.doAction({
             type:      "ir.actions.act_window",
             res_model: "patient.monitoring.patient",
+            views:     [[false, "form"]],
+            target:    "current",
+            // Pre-fill the assigned staff when opening from a staff record
+            context: this.isFiltered
+                ? { default_assigned_staff_id: this.staffId }
+                : {},
+        });
+    }
+
+    /** Navigate back to the Medical Staff record this list was opened from. */
+    backToStaff() {
+        if (!this.staffId) return;
+        this.actionService.doAction({
+            type:      "ir.actions.act_window",
+            res_model: "patient.monitoring.staff",
+            res_id:    this.staffId,
             views:     [[false, "form"]],
             target:    "current",
         });

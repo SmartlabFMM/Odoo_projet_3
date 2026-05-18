@@ -34,7 +34,11 @@ function groupBySessions(records) {
         if (!map.has(sid)) map.set(sid, []);
         map.get(sid).push(m);
     }
-    return Array.from(map.entries()).map(([sid, recs], idx) => {
+
+    // FIX: Assign `index` in chronological order FIRST (oldest session → index 0,
+    // so index + 1 equals the true session number in the template).
+    // Then reverse the array so the newest session is rendered at the top of the UI.
+    const sessions = Array.from(map.entries()).map(([sid, recs], chronoIdx) => {
         const sorted = [...recs].sort(
             (a, b) => new Date(a.measurement_date) - new Date(b.measurement_date)
         );
@@ -44,12 +48,16 @@ function groupBySessions(records) {
         const date  = first.toLocaleDateString([], { month: "short", day: "numeric" });
         return {
             session_id: sid,
-            index:      idx,
-            color:      SESSION_COLORS[idx % SESSION_COLORS.length],
+            index:      chronoIdx,                                        // chronological (0 = oldest = Session 1)
+            color:      SESSION_COLORS[chronoIdx % SESSION_COLORS.length],
             label:      `${date}  ${fmt(first)} – ${fmt(last)}`,
             records:    sorted,
         };
     });
+
+    // Reverse for display only — newest session appears first on screen,
+    // but index values (and therefore session numbers) remain chronological.
+    return sessions.reverse();
 }
 
 class VitalsChartWidget extends Component {
