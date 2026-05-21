@@ -43,11 +43,8 @@ class Alerts(models.Model):
     state = fields.Selection([
         ('pending', 'Pending'),
         ('acknowledged', 'Acknowledged'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
         ('resolved', 'Resolved'),
     ], string='Status', default='pending', tracking=True)
-
 
     alert_status = fields.Selection([
         ('current', 'Current'),
@@ -76,18 +73,16 @@ class Alerts(models.Model):
 
     color = fields.Integer(string='Color Index', compute='_compute_color')
 
-
     @api.depends('severity', 'state')
     def _compute_color(self):
         color_map = {
             'critical': 1, 'high': 2, 'medium': 3, 'low': 4,
         }
         for rec in self:
-            if rec.state in ('resolved', 'rejected'):
+            if rec.state == 'resolved':
                 rec.color = 10
             else:
                 rec.color = color_map.get(rec.severity, 0)
-
 
     def action_acknowledge(self):
         self.write({
@@ -95,36 +90,22 @@ class Alerts(models.Model):
             'acknowledged_date': fields.Datetime.now(),
         })
 
-    def action_accept(self):
-        staff = self._get_current_staff()
-        vals = {'state': 'accepted'}
-        if staff:
-            vals['handled_by_id'] = staff.id
-        self.write(vals)
-
-    def action_reject(self):
-        staff = self._get_current_staff()
-        vals = {'state': 'rejected'}
-        if staff:
-            vals['handled_by_id'] = staff.id
-        self.write(vals)
-
     def action_resolve(self):
-        self.write({
+        staff = self._get_current_staff()
+        vals = {
             'state': 'resolved',
             'resolved_date': fields.Datetime.now(),
-        })
-
+        }
+        if staff:
+            vals['handled_by_id'] = staff.id
+        self.write(vals)
 
     def mark_as_old(self):
-        """Transition current alerts to 'old'.  Safe to call on a recordset."""
         current = self.filtered(lambda a: a.alert_status == 'current')
         if current:
             current.write({'alert_status': 'old'})
 
-
     def _get_current_staff(self):
-        """Return the patient.monitoring.staff record for the current user, or empty."""
         return self.env['patient.monitoring.staff'].search(
             [('user_id', '=', self.env.uid)], limit=1
         )

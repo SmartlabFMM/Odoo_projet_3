@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="health_monitoring.AlertsDashboard">
+        <div class="hm_wrap hm_alerts_wrap">
+
+            <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+            <header class="hm_header">
+                <div class="hm_header_top">
+
+                    <!-- Title area -->
+                    <div t-if="!isFiltered">
+                        <span class="hm_eyebrow">Patient Monitoring System</span>
+                        <h1 class="hm_title">Alerts</h1>
+                    </div>
+
+                    <div t-else="">
+                        <span class="hm_eyebrow">
+                            <button
+                                class="hm_back_btn"
+                                t-on-click="backToPatient"
+                                title="Back to patient record"
+                            >← Patient</button>
+                            <span class="hm_eyebrow_sep"> / </span>
+                            <span t-esc="patientName"/>
+                        </span>
+                        <h1 class="hm_title">Alerts</h1>
+                    </div>
+
+                    <!-- Stats — loaded -->
+                    <div class="hm_stats" t-if="state.loaded">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n" t-esc="totalCount"/>
+                            <span class="hm_stat_l">Total</span>
+                        </div>
+                        <div class="hm_stat hm_stat--warn">
+                            <span class="hm_stat_n" t-esc="pendingCount"/>
+                            <span class="hm_stat_l">Pending</span>
+                        </div>
+                        <div class="hm_stat hm_stat--crit">
+                            <span class="hm_stat_n" t-esc="criticalHighCount"/>
+                            <span class="hm_stat_l">Crit / High</span>
+                        </div>
+                        <div class="hm_stat hm_stat--ok">
+                            <span class="hm_stat_n" t-esc="resolvedCount"/>
+                            <span class="hm_stat_l">Resolved</span>
+                        </div>
+                    </div>
+
+                    <!-- Stats — skeleton -->
+                    <div class="hm_stats" t-else="">
+                        <div class="hm_stat">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Total</span>
+                        </div>
+                        <div class="hm_stat hm_stat--warn">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Pending</span>
+                        </div>
+                        <div class="hm_stat hm_stat--crit">
+                            <span class="hm_stat_n">—</span>
+                            <span class="hm_stat_l">Crit / High</span>
+                        </div>
+                    </div>
+
+                    <button class="hm_new_btn" t-on-click="newAlert">+ New Alert</button>
+
+                </div>
+
+                <!-- Search row -->
+                <div class="hm_search_row" t-if="state.loaded">
+                    <div class="hm_search_wrap">
+                        <span class="hm_search_icon">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="11" cy="11" r="7"/>
+                                <path d="M16.5 16.5L22 22"/>
+                            </svg>
+                        </span>
+                        <input
+                            class="hm_search_input"
+                            type="text"
+                            placeholder="SEARCH BY PATIENT, ALERT REF, TYPE, OR DESCRIPTION…"
+                            autocomplete="off"
+                            spellcheck="false"
+                            t-att-value="state.searchQuery"
+                            t-on-input="onSearch"
+                        />
+                        <button
+                            class="hm_search_clear"
+                            t-if="state.searchQuery"
+                            t-on-click="clearSearch"
+                            title="Clear search"
+                        >✕</button>
+                    </div>
+                    <span class="hm_search_meta" t-if="state.searchQuery">
+                        <t t-esc="filteredAlerts.length"/> result<t t-if="filteredAlerts.length !== 1">s</t>
+                    </span>
+                </div>
+
+                <!-- Filter toolbar -->
+                <div class="hm_alerts_toolbar" t-if="state.loaded">
+
+                    <!-- State tabs -->
+                    <div class="hm_filter_tabs">
+                        <button
+                            t-attf-class="hm_filter_tab {{ state.activeFilter === 'all'          ? 'is-active' : '' }}"
+                            t-on-click="() => this.setFilter('all')"
+                        >All</button>
+                        <button
+                            t-attf-class="hm_filter_tab {{ state.activeFilter === 'pending'      ? 'is-active' : '' }}"
+                            t-on-click="() => this.setFilter('pending')"
+                        >Pending</button>
+                        <button
+                            t-attf-class="hm_filter_tab {{ state.activeFilter === 'acknowledged' ? 'is-active' : '' }}"
+                            t-on-click="() => this.setFilter('acknowledged')"
+                        >Acknowledged</button>
+                        <button
+                            t-attf-class="hm_filter_tab {{ state.activeFilter === 'resolved'     ? 'is-active' : '' }}"
+                            t-on-click="() => this.setFilter('resolved')"
+                        >Resolved</button>
+                    </div>
+
+                    <!-- Severity pills -->
+                    <div class="hm_severity_pills">
+                        <button
+                            t-attf-class="hm_sev_pill {{ state.activeSeverity === 'all' ? 'is-active' : '' }}"
+                            t-on-click="() => this.setSeverity('all')"
+                        >All</button>
+                        <button
+                            t-attf-class="hm_sev_pill hm_sev_pill--critical {{ state.activeSeverity === 'critical' ? 'is-active' : '' }}"
+                            t-on-click="() => this.setSeverity('critical')"
+                        >● Critical</button>
+                        <button
+                            t-attf-class="hm_sev_pill hm_sev_pill--high {{ state.activeSeverity === 'high' ? 'is-active' : '' }}"
+                            t-on-click="() => this.setSeverity('high')"
+                        >▲ High</button>
+                        <button
+                            t-attf-class="hm_sev_pill hm_sev_pill--medium {{ state.activeSeverity === 'medium' ? 'is-active' : '' }}"
+                            t-on-click="() => this.setSeverity('medium')"
+                        >◆ Medium</button>
+                        <button
+                            t-attf-class="hm_sev_pill hm_sev_pill--low {{ state.activeSeverity === 'low' ? 'is-active' : '' }}"
+                            t-on-click="() => this.setSeverity('low')"
+                        >▽ Low</button>
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- ══ SELECTION BAR ════════════════════════════════════════════════ -->
+            <div class="hm_selection_bar" t-if="state.selectedIds.size > 0">
+                <span class="hm_selection_count">
+                    <strong t-esc="state.selectedIds.size"/> alert<t t-if="state.selectedIds.size !== 1">s</t> selected
+                </span>
+                <button class="hm_delete_btn" t-on-click="deleteSelected">
+                    ✕ Delete Selected
+                </button>
+                <button class="hm_selection_clear_btn" t-on-click="clearSelection">
+                    Cancel
+                </button>
+            </div>
+
+            <!-- ══ LIST ════════════════════════════════════════════════════════ -->
+            <main class="hm_list">
+
+                <!-- Loading -->
+                <t t-if="!state.loaded">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">Loading…</span>
+                    </div>
+                </t>
+
+                <!-- Empty (no alerts at all) -->
+                <t t-elif="state.alerts.length === 0">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">No alerts found</span>
+                        <p class="hm_state_hint">
+                            All systems normal — no alerts have been triggered yet.
+                        </p>
+                    </div>
+                </t>
+
+                <!-- Empty (filter / search match) -->
+                <t t-elif="filteredAlerts.length === 0">
+                    <div class="hm_state_msg">
+                        <span class="hm_eyebrow">No results</span>
+                        <p class="hm_state_hint">
+                            No alerts match the current filters or search query.
+                        </p>
+                        <button class="hm_btn_ghost" t-on-click="clearSearch">Clear search</button>
+                    </div>
+                </t>
+
+                <!-- Alert rows -->
+                <t t-else="">
+                    <t t-foreach="pagedAlerts" t-as="alert" t-key="alert.id">
+
+                        <div
+                            t-attf-class="hm_row hm_row--alert {{ severityClass(alert.severity) }} {{ state.selectedIds.has(alert.id) ? 'hm_row--selected' : '' }} {{ alert.state === 'resolved' ? 'hm_row--resolved' : '' }}"
+                            t-on-click="() => this.openAlert(alert.id)"
+                            role="button"
+                            tabindex="0"
+                            t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; this.openAlert(alert.id)"
+                        >
+                            <!-- Checkbox -->
+                            <label class="hm_row_check" t-on-click.stop="">
+                                <input
+                                    type="checkbox"
+                                    class="hm_checkbox"
+                                    t-att-checked="state.selectedIds.has(alert.id)"
+                                    t-on-change="() => this.toggleSelect(alert.id)"
+                                />
+                            </label>
+
+                            <!-- Index -->
+                            <span class="hm_row_idx" t-esc="fmtIdx(alert_index)"/>
+
+                            <!-- Main content -->
+                            <div class="hm_row_content">
+                                <div class="hm_row_name">
+                                    <span class="hm_row_title" t-esc="alert.patient_id ? alert.patient_id[1] : '— No Patient'"/>
+                                    <span class="hm_rec_type_badge" t-esc="typeLabel(alert.alert_type)"/>
+                                </div>
+                                <span class="hm_row_user" t-esc="alert.name"/>
+                                <span class="hm_row_desc" t-esc="alert.description"/>
+                            </div>
+
+                            <!-- Meta tags (severity, state, date) -->
+                            <div class="hm_row_meta">
+                                <span
+                                    t-attf-class="hm_tag hm_alert_sev_tag hm_alert_sev--{{ alert.severity }}"
+                                    t-esc="severityLabel(alert.severity)"
+                                />
+                                <span
+                                    t-attf-class="hm_tag {{ stateTagClass(alert.state) }}"
+                                    t-esc="stateLabel(alert.state)"
+                                />
+                                <span class="hm_tag hm_tag--date">
+                                    <t t-esc="fmtDate(alert.alert_date)"/>
+                                    <t t-if="alert.alert_date">
+                                        <span class="hm_tag_time" t-esc="fmtTime(alert.alert_date)"/>
+                                    </t>
+                                </span>
+                            </div>
+
+                            <!-- Inline action buttons -->
+                            <div class="hm_alert_actions" t-on-click.stop="">
+                                <button
+                                    t-if="alert.state === 'pending'"
+                                    class="hm_alert_action_btn hm_alert_action_btn--ack"
+                                    t-on-click="(ev) => this.acknowledgeAlert(alert.id, ev)"
+                                    title="Acknowledge this alert"
+                                >Ack</button>
+                                <button
+                                    t-if="alert.state === 'acknowledged'"
+                                    class="hm_alert_action_btn hm_alert_action_btn--resolve"
+                                    t-on-click="(ev) => this.resolveAlert(alert.id, ev)"
+                                    title="Mark as resolved"
+                                >Resolve</button>
+                                <span t-if="alert.state === 'resolved'" class="hm_alert_resolved_mark">✓</span>
+                            </div>
+
+                            <!-- Row arrow -->
+                            <span class="hm_row_arrow">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M13 6l6 6-6 6"/>
+                                </svg>
+                            </span>
+
+                        </div>
+
+                    </t>
+                </t>
+
+            </main>
+
+            <!-- ══ PAGINATION ═══════════════════════════════════════════════════ -->
+            <div class="hm_pagination" t-if="state.loaded and filteredAlerts.length > state.pageSize">
+
+                <button
+                    class="hm_page_btn"
+                    t-att-disabled="!hasPrev"
+                    t-on-click="prevPage"
+                    title="Previous page"
+                >← Prev</button>
+
+                <span class="hm_page_info">
+                    <strong><t t-esc="paginationFrom"/>–<t t-esc="paginationTo"/></strong>
+                    <span class="hm_page_of"> of </span>
+                    <strong><t t-esc="filteredAlerts.length"/></strong>
+                </span>
+
+                <button
+                    class="hm_page_btn"
+                    t-att-disabled="!hasNext"
+                    t-on-click="nextPage"
+                    title="Next page"
+                >Next →</button>
+
+                <span class="hm_page_label">
+                    Page <strong t-esc="state.currentPage"/> / <strong t-esc="totalPages"/>
+                </span>
+
+            </div>
+
+            <!-- ══ FOOTER ═══════════════════════════════════════════════════════ -->
+            <footer class="hm_footer">
+                <span>Health Monitoring &amp; AI Alerts</span>
+                <span class="hm_footer_sep">·</span>
+                <span>Smartlab FMM</span>
+            </footer>
+
+        </div>
+    </t>
+
+</templates>

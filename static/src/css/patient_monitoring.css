@@ -166,6 +166,54 @@
     }
 }
 
+/* ── Measurements Session View ── */
+
+.ms-view {
+    display:        flex;
+    flex-direction: column;
+    height:         100%;
+    background:     #f8f9fc;
+}
+
+.ms-toolbar {
+    background:    #fff;
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.08);
+    flex-shrink:   0;
+}
+
+.ms-toolbar-title {
+    font-size:      18px;
+    font-weight:    700;
+    color:          #1a1a2e;
+    letter-spacing: -0.01em;
+}
+
+.ms-select {
+    min-width:    200px;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+.ms-body {
+    flex:       1;
+    overflow-y: auto;
+}
+
+.ms-empty {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    padding:         80px 24px;
+    color:           #aaa;
+}
+
+.ms-session-meta .badge {
+    font-size:   10px;
+    font-weight: 600;
+}
+
+/* ── Patient form ── */
+
 .hm_patient_form {
     --bg:          #f7f4ef;
     --bg-row-h:    #edeadc;
@@ -484,12 +532,6 @@
     .hm_patient_form .o_group.o_inner_group  { padding: 16px 20px !important; width: 100% !important; }
 }
 
-
-/* ═══════════════════════════════════════════════════════════════════════
-   MEDICAL RECORD FORM  —  hm_record_form
-   Same warm-paper / brutalist design language as hm_patient_form.
-   ═══════════════════════════════════════════════════════════════════════ */
-
 .hm_record_form {
     --bg:          #f7f4ef;
     --bg-row-h:    #edeadc;
@@ -504,7 +546,6 @@
     --sans:        system-ui, -apple-system, sans-serif;
 }
 
-/* ── Full-width sheet (this is the core fix for the empty right-side space) ── */
 .hm_record_form .o_form_sheet_bg {
     background:  var(--bg) !important;
     padding:     0 !important;
@@ -526,7 +567,6 @@
     overflow-x:  hidden !important;
 }
 
-/* ── Status bar ── */
 .hm_record_form .o_form_statusbar {
     background:    var(--bg) !important;
     border-bottom: 1.5px solid var(--ink) !important;
@@ -535,7 +575,6 @@
     box-shadow:    none !important;
 }
 
-/* Confirm / primary workflow button */
 .hm_record_form .o_statusbar_buttons .btn-primary {
     border-radius:  0 !important;
     border:         2.5px solid #1a1a2e !important;
@@ -563,7 +602,6 @@
     transform:  translate(3px, 3px) !important;
 }
 
-/* Archive / Reset to Draft / secondary buttons */
 .hm_record_form .o_statusbar_buttons .btn-secondary,
 .hm_record_form .o_statusbar_buttons .btn-default {
     border-radius:  0 !important;
@@ -594,7 +632,6 @@
     transform:  translate(3px, 3px) !important;
 }
 
-/* ── Smart button bar ── */
 .hm_record_form .oe_button_box {
     border-bottom: 1.5px solid var(--ink);
     padding:       20px 48px 18px;
@@ -660,7 +697,6 @@
     font-weight:    400;
 }
 
-/* ── Title block:  h1 = record ref (serif italic hero),  h3 = patient name (serif italic medium) ── */
 .hm_record_form .oe_title {
     padding:       28px 48px 0;
     border-bottom: none;
@@ -694,7 +730,6 @@
     text-decoration: none !important;
 }
 
-/* patient name — serif italic, medium size, accent colour */
 .hm_record_form .oe_title h3 {
     font-family:    var(--serif) !important;
     font-style:     italic !important;
@@ -720,7 +755,6 @@
     text-decoration: none !important;
 }
 
-/* ── Groups / field labels ── */
 .hm_record_form .o_group {
     margin:        0 !important;
     padding:       0 !important;
@@ -736,19 +770,14 @@
     width:          50% !important;
 }
 
-/* Inside the notebook tab-content already provides horizontal padding,
-   so inner groups only need vertical breathing room — no side padding */
 .hm_record_form .o_notebook .o_group.o_inner_group {
     padding: 20px 0 !important;
 }
 
-/* The outer group wrapper inside a tab needs no bottom rule — the tab
-   itself provides the containment */
 .hm_record_form .o_notebook .o_group {
     border-bottom: none;
 }
 
-/* Inner group heading (string="Diagnosis & Treatment" etc.) */
 .hm_record_form .o_inner_group > .o_group_label {
     font-family:    var(--mono) !important;
     font-size:      10px !important;
@@ -792,9 +821,6 @@
     font-size:  15px !important;
 }
 
-/* ── Textarea fields (diagnosis, treatment, prescriptions, notes) ──
-   Remove Odoo's default white-box style; use the same bottom-rule
-   treatment as every other input in this design system              */
 .hm_record_form .o_field_text textarea {
     background:    transparent !important;
     border:        none !important;
@@ -825,13 +851,8 @@
     font-style:  italic !important;
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   VITAL SIGN THRESHOLDS  —  Swiss Brutalism redesign
-   Hard grid · inverted headers · bold mono numerals · offset shadow
-   ══════════════════════════════════════════════════════════════════ */
-
 .hm_record_form .hm_vitals_grid {
-    display:       grid;
+    display:               grid;
     grid-template-columns: repeat(5, 1fr);
     gap:           0;
     padding:       0;
@@ -842,13 +863,11 @@
     margin:        0;
 }
 
-/* Inside notebook the tab-content handles outer padding */
 .hm_record_form .o_notebook .hm_vitals_grid {
     padding:    0 !important;
     margin-top: 4px !important;
 }
 
-/* Each vital column */
 .hm_record_form .hm_vital_block {
     display:        flex;
     flex-direction: column;
@@ -864,7 +883,6 @@
     border-right: none;
 }
 
-/* Inverted header: vital name on dark background */
 .hm_record_form .hm_vital_label {
     font-family:    var(--mono);
     font-size:      13px;
@@ -878,7 +896,6 @@
     line-height:    1.3;
 }
 
-/* Unit on dark background, dimmed */
 .hm_record_form .hm_vital_unit {
     font-family:    var(--mono);
     font-size:      11px;
@@ -891,24 +908,21 @@
     border-bottom:  1.5px solid var(--ink);
 }
 
-/* Min–Max row: two cells split by a thin rule */
 .hm_record_form .hm_vital_range_row {
-    display:    grid;
+    display:               grid;
     grid-template-columns: 1fr 1px 1fr;
-    align-items: stretch;
-    flex:        1;
+    align-items:           stretch;
+    flex:                  1;
 }
 
-/* The 1px column acts as the divider */
 .hm_record_form .hm_vital_sep {
-    width:      1px;
-    background: var(--rule-strong);
-    font-size:  0;
-    margin:     12px 0;
+    width:       1px;
+    background:  var(--rule-strong);
+    font-size:   0;
+    margin:      12px 0;
     flex-shrink: 0;
 }
 
-/* Each Min / Max cell */
 .hm_record_form .hm_vital_minmax {
     display:         flex;
     flex-direction:  column;
@@ -918,7 +932,6 @@
     gap:             6px;
 }
 
-/* MIN / MAX label */
 .hm_record_form .hm_vital_minmax_label {
     font-family:    var(--mono);
     font-size:      7px;
@@ -929,12 +942,10 @@
     line-height:    1;
 }
 
-/* Field wrapper */
 .hm_record_form .hm_vital_minmax .o_field_widget {
     width: 100% !important;
 }
 
-/* The number itself */
 .hm_record_form .hm_vital_minmax .o_field_widget input,
 .hm_record_form .hm_vital_minmax .o_field_widget .o_field_number {
     text-align:     center !important;
@@ -951,18 +962,16 @@
     line-height:    1 !important;
 }
 
-/* Hover: subtle ink tint on the data area only */
 .hm_record_form .hm_vital_block:hover .hm_vital_range_row {
     background: var(--bg-row-h);
     transition: background 0.12s ease;
 }
 
-/* ── Notebook / tabs ── */
 .hm_record_form .o_notebook > .nav-tabs {
-    border-bottom:  1.5px solid var(--ink) !important;
-    background:     var(--bg) !important;
-    padding:        0 48px !important;
-    gap:            4px !important;
+    border-bottom: 1.5px solid var(--ink) !important;
+    background:    var(--bg) !important;
+    padding:       0 48px !important;
+    gap:           4px !important;
 }
 
 .hm_record_form .o_notebook > .nav-tabs .nav-link {
@@ -992,13 +1001,11 @@
     background: var(--bg) !important;
 }
 
-/* ── Badge state widget ── */
 .hm_record_form .o_field_badge.badge-success  { background: var(--accent) !important; color: #fff !important; border: none !important; }
 .hm_record_form .o_field_badge.badge-warning  { background: #c07a00 !important;       color: #fff !important; border: none !important; }
 .hm_record_form .o_field_badge.badge-muted,
 .hm_record_form .o_field_badge.badge-secondary { background: var(--ink-dim) !important; color: #fff !important; border: none !important; }
 
-/* ── Responsive ── */
 @media (max-width: 800px) {
     .hm_record_form .o_form_statusbar        { padding: 12px 20px !important; }
     .hm_record_form .oe_button_box           { padding: 16px 20px 14px; }

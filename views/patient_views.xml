@@ -80,9 +80,6 @@
 
                     <group string="Camera and Stream">
                         <group>
-                            <!-- Use Odoo-native help attribute so the ? tooltip icon
-                                 renders identically to the Alert Thresholds icon in
-                                 the medical record form. -->
                             <field name="has_consented"
                                    widget="boolean_toggle"
                                    string="Patient Consent"

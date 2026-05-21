@@ -64,7 +64,6 @@
                         >✕</button>
                     </div>
 
-                    <!-- result count label -->
                     <span class="hm_search_meta" t-if="state.searchQuery">
                         <t t-esc="filteredStaff.length"/> result<t t-if="filteredStaff.length !== 1">s</t>
                     </span>

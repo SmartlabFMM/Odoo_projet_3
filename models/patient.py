@@ -52,6 +52,7 @@ class Patient(models.Model):
 
     assigned_staff_id = fields.Many2one(
         'patient.monitoring.staff',
+        
         string='Assigned Medical Staff',
         ondelete='set null',
     )
@@ -80,8 +81,6 @@ class Patient(models.Model):
         compute='_compute_monitoring_status',
         store=False,
     )
-
-    # ── Computed fields ───────────────────────────────────────────────────────
 
     @api.depends('first_name', 'last_name')
     def _compute_name(self):
@@ -119,15 +118,11 @@ class Patient(models.Model):
                 rec.alert_ids.filtered(lambda a: a.state == 'pending')
             )
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
-
     def _get_fastapi_url(self):
         url = self.env['ir.config_parameter'].sudo().get_param(
             'patient_monitoring.fastapi_url', 'http://localhost:8000'
         )
         return url.rstrip('/')
-
-    # ── Stream actions ────────────────────────────────────────────────────────
 
     def action_start_stream(self):
         self.ensure_one()
@@ -213,14 +208,7 @@ class Patient(models.Model):
             },
         }
 
-    # ── Smart-button navigation actions ──────────────────────────────────────
-
     def action_view_medical_records(self):
-        """
-        Open the custom Medical Records dashboard (client action) scoped to
-        this patient.  The JS component reads patient_id / patient_name from
-        the action context to filter records and render the back-breadcrumb.
-        """
         self.ensure_one()
         return {
             'type':    'ir.actions.client',
@@ -236,12 +224,13 @@ class Patient(models.Model):
     def action_view_measurements(self):
         self.ensure_one()
         return {
-            'type':      'ir.actions.act_window',
-            'name':      'Measurements',
-            'res_model': 'patient.monitoring.measurement',
-            'view_mode': 'list,form',
-            'domain':    [('patient_id', '=', self.id)],
-            'context':   {'default_patient_id': self.id},
+            'type':    'ir.actions.client',
+            'tag':     'health_monitoring.measurements_session_view',
+            'name':    f'Measurements – {self.name}',
+            'context': {
+                'patient_id':   self.id,
+                'patient_name': self.name,
+            },
         }
 
     def action_view_alerts(self):

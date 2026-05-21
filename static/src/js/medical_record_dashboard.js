@@ -10,10 +10,6 @@ const PAGE_SIZE = 10;
 class MedicalRecordDashboard extends Component {
     static template = "health_monitoring.MedicalRecordDashboard";
 
-    /**
-     * When opened from a Patient record the action context carries
-     * patient_id / patient_name so the list can be scoped to that patient.
-     */
     static props = {
         action: { optional: true },
     };
@@ -23,7 +19,6 @@ class MedicalRecordDashboard extends Component {
         this.orm           = useService("orm");
         this.dialogService = useService("dialog");
 
-        // ── Patient-filter context ────────────────────────────────────────────
         const ctx          = this.props.action?.context ?? {};
         this.patientId     = ctx.patient_id   || null;
         this.patientName   = ctx.patient_name || null;
@@ -43,8 +38,6 @@ class MedicalRecordDashboard extends Component {
 
         onMounted(() => this._loadRecords());
     }
-
-    // ── Data ─────────────────────────────────────────────────────────────────
 
     async _loadRecords() {
         try {
@@ -75,8 +68,6 @@ class MedicalRecordDashboard extends Component {
             this.state.loaded = true;
         }
     }
-
-    // ── Computed ─────────────────────────────────────────────────────────────
 
     get filteredRecords() {
         const q = this.state.searchQuery.toLowerCase().trim();
@@ -113,8 +104,6 @@ class MedicalRecordDashboard extends Component {
 
     get hasPrev() { return this.state.currentPage > 1; }
     get hasNext()  { return this.state.currentPage < this.totalPages; }
-
-    // ── Interactions ─────────────────────────────────────────────────────────
 
     onSearch(ev) {
         this.state.searchQuery = ev.target.value;
@@ -172,8 +161,6 @@ class MedicalRecordDashboard extends Component {
         });
     }
 
-    // ── Navigation ───────────────────────────────────────────────────────────
-
     openRecord(id) {
         this.actionService.doAction({
             type:      "ir.actions.act_window",
@@ -196,7 +183,6 @@ class MedicalRecordDashboard extends Component {
         });
     }
 
-    /** Navigate back to the Patient record this list was opened from. */
     backToPatient() {
         if (!this.patientId) return;
         this.actionService.doAction({
@@ -208,17 +194,11 @@ class MedicalRecordDashboard extends Component {
         });
     }
 
-    // ── Formatters ───────────────────────────────────────────────────────────
-
     fmtIdx(localIndex) {
         const globalIndex = (this.state.currentPage - 1) * this.state.pageSize + localIndex;
         return String(globalIndex + 1).padStart(2, "0");
     }
 
-    /**
-     * Odoo ORM returns Datetime fields as "YYYY-MM-DD HH:MM:SS" UTC strings.
-     * We display them as "DD Mon YYYY" for readability.
-     */
     fmtDate(dt) {
         if (!dt) return "—";
         const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -245,7 +225,6 @@ class MedicalRecordDashboard extends Component {
         return map[key] || key || "—";
     }
 
-    /** Maps a record state to the appropriate hm_tag modifier class. */
     stateTagClass(state) {
         const map = {
             confirmed: "hm_tag--ok",
@@ -255,7 +234,6 @@ class MedicalRecordDashboard extends Component {
         return map[state] || "hm_tag--off";
     }
 
-    /** Suffix line shown under the patient name: date · attending staff. */
     buildDesc(record) {
         const parts = [];
         if (record.date)              parts.push(this.fmtDate(record.date));

@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ══════════════════════════════════════════════════════════════════
-         FORM VIEW
-         ══════════════════════════════════════════════════════════════════ -->
     <record id="view_medical_record_form" model="ir.ui.view">
         <field name="name">patient.monitoring.medical.record.form</field>
         <field name="model">patient.monitoring.medical.record</field>
         <field name="arch" type="xml">
             <form string="Medical Record" class="hm_record_form">
 
-                <!-- ── Workflow buttons + status bar ─────────────────── -->
                 <header>
                     <button name="action_confirm"
                             string="Confirm"
@@ -36,7 +32,6 @@
 
                 <sheet>
 
-                    <!-- ── Smart buttons ─────────────────────────────── -->
                     <div class="oe_button_box" name="button_box">
                         <button name="action_print_report"
                                 type="object"
@@ -49,7 +44,6 @@
                         </button>
                     </div>
 
-                    <!-- ── Title: record ref (hero) + patient name (medium) ── -->
                     <div class="oe_title">
                         <h1>
                             <field name="name" readonly="1"/>
@@ -61,7 +55,6 @@
                         </h3>
                     </div>
 
-                    <!-- ── Record Details ─────────────────────────────── -->
                     <group string="Record Details">
                         <group>
                             <field name="date"/>
@@ -80,7 +73,6 @@
                         </group>
                     </group>
 
-                    <!-- ── Diagnosis & Treatment / Prescriptions & Notes ── -->
                     <group>
                         <group string="Diagnosis &amp; Treatment">
                             <field name="diagnosis"
@@ -96,13 +88,10 @@
                         </group>
                     </group>
 
-                    <!-- ── Tabs ──────────────────────────────────────── -->
                     <notebook>
 
-                        <!-- 1. Vital Sign Thresholds -->
                         <page string="Vital Sign Thresholds" name="vital_thresholds">
 
-                            <!-- Section header with tooltip -->
                             <div class="d-flex align-items-center mb-3">
                                 <span class="text-uppercase fw-bold"
                                       style="font-size:11px; letter-spacing:.08em;">
@@ -197,14 +186,12 @@
                             </div>
                         </page>
 
-                        <!-- 2. Associated Measurements -->
                         <page string="Associated Measurements" name="measurements">
                             <field name="measurement_ids"
                                    widget="vitals_chart"
                                    readonly="1"/>
                         </page>
 
-                        <!-- 3. Attachments -->
                         <page string="Attachments" name="attachments">
                             <field name="attachments"
                                    widget="many2many_binary"
@@ -218,10 +205,6 @@
         </field>
     </record>
 
-
-    <!-- ══════════════════════════════════════════════════════════════════
-         LIST VIEW
-         ══════════════════════════════════════════════════════════════════ -->
     <record id="view_medical_record_list" model="ir.ui.view">
         <field name="name">patient.monitoring.medical.record.list</field>
         <field name="model">patient.monitoring.medical.record</field>
@@ -244,10 +227,6 @@
         </field>
     </record>
 
-
-    <!-- ══════════════════════════════════════════════════════════════════
-         SEARCH VIEW
-         ══════════════════════════════════════════════════════════════════ -->
     <record id="view_medical_record_search" model="ir.ui.view">
         <field name="name">patient.monitoring.medical.record.search</field>
         <field name="model">patient.monitoring.medical.record</field>
@@ -309,10 +288,6 @@
         </field>
     </record>
 
-
-    <!-- ══════════════════════════════════════════════════════════════════
-         ACTION
-         ══════════════════════════════════════════════════════════════════ -->
     <record id="action_medical_record" model="ir.actions.act_window">
         <field name="name">Medical Records</field>
         <field name="res_model">patient.monitoring.medical.record</field>
@@ -330,7 +305,6 @@
         </field>
     </record>
 
-    <!-- Client action referenced by the menu (loads the JS dashboard) -->
     <record id="action_medical_records_client" model="ir.actions.client">
         <field name="name">Medical Records</field>
         <field name="tag">health_monitoring.medical_record_dashboard</field>

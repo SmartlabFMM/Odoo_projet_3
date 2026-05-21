@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="health_monitoring.MeasurementsSessionView">
+        <div class="o_action ms-view">
+
+            <div class="ms-toolbar d-flex align-items-center gap-3 px-4 py-3">
+                <span class="ms-toolbar-title">Measurements</span>
+
+                <div class="ms-patient-filter d-flex align-items-center gap-2 ms-auto"
+                     t-if="!state.patientLocked">
+                    <i class="fa fa-user-circle text-muted"/>
+                    <select class="form-select form-select-sm ms-select"
+                            t-on-change="onPatientChange">
+                        <option value="">All Patients</option>
+                        <t t-foreach="state.patients" t-as="p" t-key="p.id">
+                            <option t-att-value="p.id" t-esc="p.name"
+                                    t-att-selected="state.selectedPatientId === p.id"/>
+                        </t>
+                    </select>
+                </div>
+            </div>
+
+            <div class="ms-body p-4">
+
+                <t t-if="!state.loaded">
+                    <div class="ms-empty">
+                        <i class="fa fa-spinner fa-spin fa-2x text-muted mb-2"/>
+                        <div class="text-muted">Loading sessions…</div>
+                    </div>
+                </t>
+
+                <t t-elif="state.sessions.length === 0">
+                    <div class="ms-empty">
+                        <i class="fa fa-heartbeat fa-2x text-muted mb-2"/>
+                        <div class="text-muted">No measurements recorded yet.</div>
+                    </div>
+                </t>
+
+                <t t-else="">
+                    <t t-foreach="state.sessions" t-as="session" t-key="session.session_id">
+                        <div class="vitals-session-block mb-4">
+
+                            <div class="vitals-session-header d-flex align-items-center gap-2 mb-2 px-1">
+                                <span class="vitals-session-badge"
+                                      t-attf-style="background: rgb({{session.color}}); color: #fff;">
+                                    Session <t t-esc="session.index + 1"/>
+                                </span>
+                                <small class="text-muted" t-esc="session.label"/>
+                                <span class="ms-session-meta ms-auto d-flex align-items-center gap-2">
+                                    <span class="badge bg-light text-secondary border">
+                                        <i class="fa fa-database me-1"/>
+                                        <t t-esc="session.count"/> pts
+                                    </span>
+                                    <t t-if="session.anomalies > 0">
+                                        <span class="badge bg-danger">
+                                            <i class="fa fa-exclamation-triangle me-1"/>
+                                            <t t-esc="session.anomalies"/> anomal<t t-if="session.anomalies === 1">y</t><t t-else="">ies</t>
+                                        </span>
+                                    </t>
+                                </span>
+                            </div>
+
+                            <div class="row g-2">
+                                <t t-foreach="vitals" t-as="vital" t-key="vital.key">
+                                    <div class="col-12 col-md-6 col-xl-4">
+                                        <div class="vitals-chart-card">
+                                            <canvas t-attf-id="mschart-{{session.index}}-{{vital.key}}"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+
+            </div>
+        </div>
+    </t>
+</templates>

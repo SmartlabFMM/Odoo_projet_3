@@ -24,7 +24,6 @@
                             <small class="text-muted" t-esc="session.label"/>
                         </div>
 
-                        <!-- 5 vital charts in a responsive grid -->
                         <div class="row g-2">
                             <t t-foreach="vitals" t-as="vital" t-key="vital.key">
                                 <div class="col-12 col-md-6 col-xl-4">

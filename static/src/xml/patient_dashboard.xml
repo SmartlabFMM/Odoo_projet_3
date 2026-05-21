@@ -7,13 +7,11 @@
             <header class="hm_header">
                 <div class="hm_header_top">
 
-                    <!-- ── Standard (all patients) mode ── -->
                     <div t-if="!isFiltered">
                         <span class="hm_eyebrow">Patient Monitoring System</span>
                         <h1 class="hm_title">Patients</h1>
                     </div>
 
-                    <!-- ── Staff-filtered mode: show breadcrumb-style context ── -->
                     <div t-else="">
                         <span class="hm_eyebrow">
                             <button

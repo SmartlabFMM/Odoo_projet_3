@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { Component, onMounted, onWillUpdateProps, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 import { loadJS } from "@web/core/assets";
 
@@ -24,7 +24,8 @@ const SESSION_COLORS = [
 
 const FIELDS = [
     "measurement_date", "heart_rate", "pulse",
-    "oxygen_saturation", "respiratory_rate", "temperature", "stream_session_id",
+    "oxygen_saturation", "respiratory_rate", "temperature",
+    "stream_session_id", "patient_id", "has_anomaly",
 ];
 
 function groupBySessions(records) {
@@ -39,15 +40,18 @@ function groupBySessions(records) {
         const sorted = [...recs].sort(
             (a, b) => new Date(a.measurement_date) - new Date(b.measurement_date)
         );
-        const first = new Date(sorted[0].measurement_date);
-        const last  = new Date(sorted[sorted.length - 1].measurement_date);
-        const fmt   = (d) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-        const date  = first.toLocaleDateString([], { month: "short", day: "numeric" });
+        const first     = new Date(sorted[0].measurement_date);
+        const last      = new Date(sorted[sorted.length - 1].measurement_date);
+        const fmt       = (d) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const date      = first.toLocaleDateString([], { month: "short", day: "numeric" });
+        const anomalies = sorted.filter((m) => m.has_anomaly).length;
         return {
             session_id: sid,
             index:      chronoIdx,
             color:      SESSION_COLORS[chronoIdx % SESSION_COLORS.length],
             label:      `${date}  ${fmt(first)} – ${fmt(last)}`,
+            count:      sorted.length,
+            anomalies,
             records:    sorted,
         };
     });
@@ -55,76 +59,80 @@ function groupBySessions(records) {
     return sessions.reverse();
 }
 
-class VitalsChartWidget extends Component {
-    static template = "health_monitoring.VitalsChartWidget";
-    static props = ["*"];
+class MeasurementsSessionView extends Component {
+    static template = "health_monitoring.MeasurementsSessionView";
+    static props    = { action: { optional: true } };
 
     setup() {
         this.orm    = useService("orm");
         this.vitals = VITALS;
-        this.state  = useState({ sessions: [], loaded: false });
+
+        const context = this.props.action?.context || {};
+
+        this.state  = useState({
+            patients:          [],
+            selectedPatientId: context.patient_id || null,
+            patientLocked:     !!context.patient_id,
+            sessions:          [],
+            loaded:            false,
+            patientsLoaded:    false,
+        });
         this._charts = {};
 
         onMounted(async () => {
             await loadJS(
                 "https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
             );
-            await this._fetchAndRender();
+            await this._loadPatients();
+            await this._loadMeasurements();
         });
 
-        onWillUpdateProps(async () => {
-            this._destroyCharts();
-            await this._fetchAndRender();
-        });
+        onWillUnmount(() => this._destroyCharts());
     }
 
-    async _fetchAndRender() {
-        await this._fetchMeasurements();
-        setTimeout(() => this._buildCharts(), 50);
+    async _loadPatients() {
+        const patients = await this.orm.searchRead(
+            "patient.monitoring.patient",
+            [],
+            ["id", "name"],
+            { order: "name asc" }
+        );
+        this.state.patients       = patients;
+        this.state.patientsLoaded = true;
     }
 
-    async _fetchMeasurements() {
+    async _loadMeasurements() {
+        this._destroyCharts();
+        this.state.loaded    = false;
+        this.state.sessions  = [];
 
-        const medicalRecordId =
-            this.props.record?.resId ||
-            this.props.record?.data?.id ||
-            null;
+        const domain = this.state.selectedPatientId
+            ? [["patient_id", "=", this.state.selectedPatientId]]
+            : [];
 
-        if (!medicalRecordId) {
-            this.state.loaded = true;
-            return;
-        }
-
-        let rows = await this.orm.searchRead(
+        const rows = await this.orm.searchRead(
             "patient.monitoring.measurement",
-            [["medical_record_id", "=", medicalRecordId]],
+            domain,
             FIELDS,
             { order: "measurement_date asc" }
         );
 
-        if (!rows.length) {
-            const raw       = this.props.record?.data?.patient_id;
-            const patientId = Array.isArray(raw) ? raw[0] : (raw || null);
-
-            if (patientId) {
-                rows = await this.orm.searchRead(
-                    "patient.monitoring.measurement",
-                    [
-                        ["patient_id", "=", patientId],
-                        ["medical_record_id", "=", false],
-                    ],
-                    FIELDS,
-                    { order: "measurement_date asc" }
-                );
-            }
-        }
-
         this.state.sessions = groupBySessions(rows);
         this.state.loaded   = true;
+
+        setTimeout(() => this._buildCharts(), 50);
+    }
+
+    async onPatientChange(ev) {
+        const val = ev.target.value;
+        this.state.selectedPatientId = val ? parseInt(val) : null;
+        await this._loadMeasurements();
     }
 
     _destroyCharts() {
-        for (const chart of Object.values(this._charts)) chart.destroy();
+        for (const chart of Object.values(this._charts)) {
+            try { chart.destroy(); } catch (_) {}
+        }
         this._charts = {};
     }
 
@@ -133,7 +141,7 @@ class VitalsChartWidget extends Component {
 
         for (const session of this.state.sessions) {
             for (const vital of VITALS) {
-                const canvasId = `vchart-${session.index}-${vital.key}`;
+                const canvasId = `mschart-${session.index}-${vital.key}`;
                 const canvas   = document.getElementById(canvasId);
                 if (!canvas) continue;
 
@@ -156,14 +164,14 @@ class VitalsChartWidget extends Component {
                     type: "line",
                     data: {
                         datasets: [{
-                            label:           `${vital.label} (${vital.unit})`,
+                            label:            `${vital.label} (${vital.unit})`,
                             data,
-                            borderColor:     `rgb(${c})`,
-                            backgroundColor: `rgba(${c}, 0.08)`,
-                            borderWidth:     2,
-                            tension:         0.35,
-                            fill:            true,
-                            pointRadius:     3,
+                            borderColor:      `rgb(${c})`,
+                            backgroundColor:  `rgba(${c}, 0.08)`,
+                            borderWidth:      2,
+                            tension:          0.35,
+                            fill:             true,
+                            pointRadius:      3,
                             pointHoverRadius: 5,
                         }],
                     },
@@ -173,11 +181,11 @@ class VitalsChartWidget extends Component {
                         plugins: {
                             legend: { display: false },
                             title: {
-                                display:  true,
-                                text:     `${vital.label} (${vital.unit})`,
-                                font:     { size: 12, weight: "600" },
-                                color:    "#444",
-                                padding:  { bottom: 6 },
+                                display: true,
+                                text:    `${vital.label} (${vital.unit})`,
+                                font:    { size: 12, weight: "600" },
+                                color:   "#444",
+                                padding: { bottom: 6 },
                             },
                         },
                         scales: {
@@ -197,4 +205,7 @@ class VitalsChartWidget extends Component {
     }
 }
 
-registry.category("fields").add("vitals_chart", { component: VitalsChartWidget });
+registry.category("actions").add(
+    "health_monitoring.measurements_session_view",
+    MeasurementsSessionView
+);

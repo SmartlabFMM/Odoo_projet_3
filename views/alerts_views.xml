@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ══ FORM VIEW ══════════════════════════════════════════════════════════ -->
+
     <record id="view_alert_form" model="ir.ui.view">
         <field name="name">patient.monitoring.alert.form</field>
         <field name="model">patient.monitoring.alert</field>
@@ -10,18 +12,13 @@
                     <button name="action_acknowledge" string="Acknowledge" type="object"
                         class="btn-secondary"
                         invisible="state != 'pending'"/>
-                    <button name="action_accept" string="Accept" type="object"
-                        class="btn-primary"
-                        invisible="state not in ('pending', 'acknowledged')"/>
-                    <button name="action_reject" string="Reject" type="object"
-                        class="btn-danger"
-                        invisible="state not in ('pending', 'acknowledged')"/>
                     <button name="action_resolve" string="Mark Resolved" type="object"
-                        invisible="state != 'accepted'"/>
+                        class="btn-primary"
+                        invisible="state != 'acknowledged'"/>
                     <button name="action_send_alert" string="Send to Staff" type="object"
                         class="btn-warning"/>
                     <field name="state" widget="statusbar"
-                        statusbar_visible="pending,acknowledged,accepted,resolved"/>
+                        statusbar_visible="pending,acknowledged,resolved"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -51,7 +48,7 @@
                         <field name="description" nolabel="1"/>
                     </group>
                     <group string="Resolution Notes"
-                        invisible="state not in ('accepted', 'rejected', 'resolved')">
+                        invisible="state not in ('acknowledged', 'resolved')">
                         <field name="resolution_notes" nolabel="1"/>
                     </group>
                     <group string="Notified Staff">
@@ -63,6 +60,8 @@
         </field>
     </record>
 
+    <!-- ══ LIST VIEW ══════════════════════════════════════════════════════════ -->
+
     <record id="view_alert_tree" model="ir.ui.view">
         <field name="name">patient.monitoring.alert.tree</field>
         <field name="model">patient.monitoring.alert</field>
@@ -71,27 +70,26 @@
                 create="0"
                 decoration-danger="severity == 'critical'"
                 decoration-warning="severity == 'high'"
-                decoration-muted="state in ('resolved', 'rejected')">
+                decoration-muted="state == 'resolved'">
                 <field name="name"/>
                 <field name="patient_id"/>
                 <field name="alert_date"/>
                 <field name="alert_type"/>
                 <field name="severity" widget="badge"/>
                 <field name="state" widget="badge"/>
-                <field name="handled_by_id"/>
                 <field name="alert_status" column_invisible="1"/>
+                <field name="handled_by_id"/>
                 <button name="action_acknowledge" string="Acknowledge" type="object"
                     class="btn-sm btn-secondary"
                     invisible="state != 'pending'"/>
-                <button name="action_accept" string="Accept" type="object"
+                <button name="action_resolve" string="Resolve" type="object"
                     class="btn-sm btn-primary"
-                    invisible="state not in ('pending', 'acknowledged')"/>
-                <button name="action_reject" string="Reject" type="object"
-                    class="btn-sm btn-danger"
-                    invisible="state not in ('pending', 'acknowledged')"/>
+                    invisible="state != 'acknowledged'"/>
             </list>
         </field>
     </record>
+
+    <!-- ══ KANBAN VIEW ════════════════════════════════════════════════════════ -->
 
     <record id="view_alert_kanban" model="ir.ui.view">
         <field name="name">patient.monitoring.alert.kanban</field>
@@ -123,6 +121,8 @@
         </field>
     </record>
 
+    <!-- ══ SEARCH VIEW ════════════════════════════════════════════════════════ -->
+
     <record id="view_alert_search" model="ir.ui.view">
         <field name="name">patient.monitoring.alert.search</field>
         <field name="model">patient.monitoring.alert</field>
@@ -143,7 +143,7 @@
                 <filter name="anomaly" string="Anomaly Alerts"
                     domain="[('alert_type', '=', 'anomaly')]"/>
                 <filter name="unresolved" string="Unresolved"
-                    domain="[('state', 'not in', ['resolved', 'rejected'])]"/>
+                    domain="[('state', '!=', 'resolved')]"/>
                 <separator/>
                 <filter name="group_alert_status" string="Current / Old"
                     context="{'group_by': 'alert_status'}"/>
@@ -156,6 +156,11 @@
             </search>
         </field>
     </record>
+
+    <!-- ══ WINDOW ACTION (fallback / form access) ═════════════════════════════
+         Used when opening individual alert forms from the dashboard or
+         from related record smart buttons.
+    ══════════════════════════════════════════════════════════════════════════ -->
 
     <record id="action_alert" model="ir.actions.act_window">
         <field name="name">Alerts</field>
@@ -170,6 +175,23 @@
                 No alerts found. All systems normal!
             </p>
         </field>
+    </record>
+
+    <!-- ══ CLIENT ACTION (Swiss Brutalism dashboard) ══════════════════════════
+         Point your menu item at this action so the custom OWL dashboard
+         loads instead of the standard list/kanban view.
+
+         In __manifest__.py, register the new assets:
+           'web.assets_backend': [
+               'health_monitoring/static/src/css/alerts_dashboard.css',
+               'health_monitoring/static/src/xml/alerts_dashboard.xml',
+               'health_monitoring/static/src/js/alerts_dashboard.js',
+           ],
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="action_alerts_dashboard" model="ir.actions.client">
+        <field name="name">Alerts Dashboard</field>
+        <field name="tag">health_monitoring.alerts_dashboard</field>
     </record>
 
 </odoo>

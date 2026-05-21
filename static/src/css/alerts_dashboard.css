@@ -1,0 +1,336 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   alerts_dashboard.css
+   Swiss Brutalism — matches hm_wrap design system
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Stat colour variants ──────────────────────────────────────────────── */
+
+.hm_stat--warn .hm_stat_n  { color: #d4750a; }
+.hm_stat--warn .hm_stat_l  { color: #d4750a; opacity: 0.7; }
+
+.hm_stat--crit .hm_stat_n  { color: #c0392b; }
+.hm_stat--crit .hm_stat_l  { color: #c0392b; opacity: 0.7; }
+
+.hm_stat--ok   .hm_stat_n  { color: var(--accent); }
+.hm_stat--ok   .hm_stat_l  { color: var(--accent); opacity: 0.7; }
+
+/* ── Toolbar: filter tabs + severity pills ─────────────────────────────── */
+
+.hm_alerts_toolbar {
+    display:         flex;
+    align-items:     center;
+    justify-content: space-between;
+    flex-wrap:       wrap;
+    gap:             0.6rem 1rem;
+    padding-top:     0.9rem;
+    border-top:      1px solid var(--rule);
+    margin-top:      1rem;
+}
+
+/* — State filter tabs — */
+
+.hm_filter_tabs {
+    display:     flex;
+    align-items: stretch;
+    gap:         0;
+}
+
+.hm_filter_tab {
+    background:     transparent;
+    border:         none;
+    border-bottom:  2.5px solid transparent;
+    padding:        6px 18px 5px;
+    font-family:    var(--mono);
+    font-size:      0.68rem;
+    font-weight:    700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color:          var(--ink-dim);
+    cursor:         pointer;
+    white-space:    nowrap;
+    transition:     color 0.1s ease, border-color 0.1s ease;
+}
+
+.hm_filter_tab:hover {
+    color:        var(--ink);
+    border-color: var(--rule-strong);
+}
+
+.hm_filter_tab.is-active {
+    color:        var(--ink);
+    border-color: var(--ink);
+}
+
+/* — Severity pills — */
+
+.hm_severity_pills {
+    display:     flex;
+    align-items: center;
+    flex-wrap:   wrap;
+    gap:         4px;
+}
+
+.hm_sev_pill {
+    background:     transparent;
+    border:         1.5px solid var(--rule-strong);
+    padding:        3px 11px;
+    font-family:    var(--mono);
+    font-size:      0.62rem;
+    font-weight:    700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          var(--ink-dim);
+    cursor:         pointer;
+    white-space:    nowrap;
+    transition:     background 0.1s, color 0.1s, border-color 0.1s;
+}
+
+.hm_sev_pill:hover    { color: var(--ink); border-color: var(--ink); }
+.hm_sev_pill.is-active {
+    background:   var(--ink);
+    color:        var(--bg);
+    border-color: var(--ink);
+}
+
+/* Critical pill */
+.hm_sev_pill--critical              { color: #c0392b; border-color: #c0392b; }
+.hm_sev_pill--critical:hover        { background: rgba(192, 57, 43, 0.08); }
+.hm_sev_pill--critical.is-active    { background: #c0392b; color: #fff; border-color: #c0392b; }
+
+/* High pill */
+.hm_sev_pill--high                  { color: #d4750a; border-color: #d4750a; }
+.hm_sev_pill--high:hover            { background: rgba(212, 117, 10, 0.08); }
+.hm_sev_pill--high.is-active        { background: #d4750a; color: #fff; border-color: #d4750a; }
+
+/* Medium pill */
+.hm_sev_pill--medium                { color: #946800; border-color: #946800; }
+.hm_sev_pill--medium:hover          { background: rgba(148, 104, 0, 0.08); }
+.hm_sev_pill--medium.is-active      { background: #946800; color: #fff; border-color: #946800; }
+
+/* Low pill */
+.hm_sev_pill--low                   { color: var(--accent); border-color: var(--accent); }
+.hm_sev_pill--low:hover             { background: rgba(45, 106, 79, 0.08); }
+.hm_sev_pill--low.is-active         { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+/* ── Alert rows ─────────────────────────────────────────────────────────── */
+
+.hm_row.hm_row--alert {
+    grid-template-columns: 36px 40px 1fr auto auto auto;
+    padding-top:    15px;
+    padding-bottom: 15px;
+    /* 4px left accent strip — colour set per severity */
+    border-left:    4px solid transparent;
+    /* Override the ::before hover bar so the border-left carries all the
+       severity colour weight without doubling up */
+}
+
+/* Override the default ::before green bar — use border-left instead */
+.hm_row.hm_row--alert::before { display: none; }
+
+/* Severity left borders */
+.hm_row.hm_alert--critical { border-left-color: #c0392b; }
+.hm_row.hm_alert--high     { border-left-color: #d4750a; }
+.hm_row.hm_alert--medium   { border-left-color: #946800; }
+.hm_row.hm_alert--low      { border-left-color: var(--accent); }
+
+/* Subtle background tint on hover per severity */
+.hm_row.hm_alert--critical:hover { background: rgba(192, 57, 43, 0.035); }
+.hm_row.hm_alert--high:hover     { background: rgba(212, 117, 10, 0.035); }
+.hm_row.hm_alert--medium:hover   { background: rgba(148, 104, 0, 0.03);  }
+.hm_row.hm_alert--low:hover      { background: var(--bg-row-h); }
+
+/* Resolved rows — muted */
+.hm_row.hm_row--resolved {
+    opacity: 0.5;
+}
+
+.hm_row.hm_row--resolved:hover {
+    opacity:    0.7;
+    background: var(--bg-row-h);
+}
+
+/* ── Meta column (right side tags) ─────────────────────────────────────── */
+
+.hm_row--alert .hm_row_meta {
+    display:        flex;
+    flex-direction: column;
+    align-items:    flex-end;
+    gap:            4px;
+    padding:        2px 0;
+}
+
+/* Severity badge (inline per row) */
+.hm_alert_sev_tag {
+    font-family:    var(--mono);
+    font-size:      0.58rem;
+    font-weight:    800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding:        2px 7px;
+    border:         1.5px solid currentColor;
+    white-space:    nowrap;
+    line-height:    1.5;
+}
+
+.hm_alert_sev--critical { color: #c0392b; }
+.hm_alert_sev--high     { color: #d4750a; }
+.hm_alert_sev--medium   { color: #946800; }
+.hm_alert_sev--low      { color: var(--accent); }
+
+/* State tag variants */
+.hm_tag--pending {
+    color:        #d4750a !important;
+    border-color: #d4750a !important;
+}
+
+.hm_tag--ack {
+    color:        rgba(91, 79, 207, 0.85) !important;
+    border-color: rgba(91, 79, 207, 0.85) !important;
+}
+
+/* Date sub-tag */
+.hm_tag--date {
+    color:        var(--ink-dim);
+    border-color: transparent;
+    font-size:    0.58rem;
+    display:      flex;
+    align-items:  baseline;
+    gap:          4px;
+}
+
+.hm_tag_time {
+    color:          var(--ink-dim);
+    opacity:        0.6;
+    font-family:    var(--mono);
+    font-size:      0.54rem;
+    letter-spacing: 0.05em;
+}
+
+/* ── Inline action buttons ──────────────────────────────────────────────── */
+
+.hm_alert_actions {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             5px;
+    min-width:       64px;
+}
+
+.hm_alert_action_btn {
+    padding:        4px 11px;
+    border:         2px solid var(--ink);
+    background:     transparent;
+    font-family:    var(--mono);
+    font-size:      0.6rem;
+    font-weight:    800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor:         pointer;
+    color:          var(--ink);
+    box-shadow:     2px 2px 0 var(--ink);
+    transition:     background 0.08s, color 0.08s, box-shadow 0.08s, transform 0.08s;
+    white-space:    nowrap;
+}
+
+.hm_alert_action_btn:hover {
+    background: var(--ink);
+    color:      var(--bg);
+    box-shadow: 1px 1px 0 var(--ink);
+    transform:  translate(1px, 1px);
+}
+
+.hm_alert_action_btn:active {
+    box-shadow: none;
+    transform:  translate(2px, 2px);
+}
+
+/* Acknowledge button — amber */
+.hm_alert_action_btn--ack {
+    border-color: #d4750a;
+    color:        #d4750a;
+    box-shadow:   2px 2px 0 #d4750a;
+}
+
+.hm_alert_action_btn--ack:hover {
+    background: #d4750a;
+    color:      #fff;
+    box-shadow: 1px 1px 0 #d4750a;
+}
+
+/* Resolve button — green accent */
+.hm_alert_action_btn--resolve {
+    border-color: var(--accent);
+    color:        var(--accent);
+    box-shadow:   2px 2px 0 var(--accent);
+}
+
+.hm_alert_action_btn--resolve:hover {
+    background: var(--accent);
+    color:      var(--bg);
+    box-shadow: 1px 1px 0 var(--accent);
+}
+
+/* Resolved checkmark */
+.hm_alert_resolved_mark {
+    font-family:    var(--mono);
+    font-size:      0.85rem;
+    font-weight:    800;
+    color:          var(--accent);
+    opacity:        0.6;
+    min-width:      24px;
+    text-align:     center;
+}
+
+/* ── Staggered row animations ───────────────────────────────────────────── */
+
+.hm_row.hm_row--alert:nth-child(1)  { animation-delay: 0.04s; }
+.hm_row.hm_row--alert:nth-child(2)  { animation-delay: 0.08s; }
+.hm_row.hm_row--alert:nth-child(3)  { animation-delay: 0.12s; }
+.hm_row.hm_row--alert:nth-child(4)  { animation-delay: 0.16s; }
+.hm_row.hm_row--alert:nth-child(5)  { animation-delay: 0.20s; }
+.hm_row.hm_row--alert:nth-child(6)  { animation-delay: 0.24s; }
+.hm_row.hm_row--alert:nth-child(7)  { animation-delay: 0.28s; }
+.hm_row.hm_row--alert:nth-child(8)  { animation-delay: 0.32s; }
+.hm_row.hm_row--alert:nth-child(9)  { animation-delay: 0.36s; }
+.hm_row.hm_row--alert:nth-child(10) { animation-delay: 0.40s; }
+.hm_row.hm_row--alert:nth-child(11) { animation-delay: 0.44s; }
+.hm_row.hm_row--alert:nth-child(12) { animation-delay: 0.48s; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 800px) {
+
+    .hm_alerts_toolbar {
+        flex-direction: column;
+        align-items:    flex-start;
+        gap:            0.5rem;
+    }
+
+    .hm_filter_tabs {
+        flex-wrap: wrap;
+    }
+
+    .hm_filter_tab {
+        padding:   5px 10px;
+        font-size: 0.6rem;
+    }
+
+    .hm_severity_pills { gap: 3px; }
+    .hm_sev_pill       { font-size: 0.55rem; padding: 3px 8px; }
+
+    .hm_row.hm_row--alert {
+        grid-template-columns: 32px 32px 1fr auto;
+        padding-top:    10px;
+        padding-bottom: 10px;
+    }
+
+    /* Hide action buttons and severity tag on small screens */
+    .hm_alert_actions           { display: none; }
+    .hm_row--alert .hm_row_meta { display: none; }
+
+    /* Hide the arrow column (6th) that no longer exists in 4-col grid */
+    .hm_row.hm_row--alert .hm_row_arrow { display: none; }
+
+    /* Stats: shrink number size */
+    .hm_stat_n { font-size: 20px !important; }
+}

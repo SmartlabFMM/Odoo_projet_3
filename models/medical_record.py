@@ -74,13 +74,11 @@ class MedicalRecord(models.Model):
     max_temperature = fields.Float(string='Max Temperature (°C)')
 
     def action_confirm(self):
-        # Resolve the staff record linked to whoever is clicking Confirm.
         confirming_staff = self.env['patient.monitoring.staff'].search(
             [('user_id', '=', self.env.uid)], limit=1
         )
 
         for record in self:
-            # Enforce a single confirmed record per patient — archive all others.
             others = self.search([
                 ('patient_id', '=', record.patient_id.id),
                 ('state',      '=', 'confirmed'),
@@ -89,7 +87,6 @@ class MedicalRecord(models.Model):
             if others:
                 others.write({'state': 'archived'})
 
-            # Update state and stamp the confirming staff account.
             vals = {'state': 'confirmed'}
             if confirming_staff:
                 vals['drafting_staff_id'] = confirming_staff.id

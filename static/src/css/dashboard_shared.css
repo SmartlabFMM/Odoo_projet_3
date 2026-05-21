@@ -593,7 +593,6 @@
         padding-bottom: 10px;
     }
 }
-/* ── Staff-filtered breadcrumb back button ───────────────────────────────── */
 
 .hm_back_btn {
     display:        inline-flex;
@@ -627,21 +626,13 @@
     font-family: monospace;
     font-size: 0.72rem;
 }
-/* ══════════════════════════════════════════════════════════════════════════
-   Medical Record Dashboard — row layout & new tag variants
-   ══════════════════════════════════════════════════════════════════════════ */
 
-/* Row grid: checkbox | index | content | status-tag | arrow
-   Matches the same column rhythm as hm_row--patient.             */
 .hm_row.hm_row--record {
     grid-template-columns: 36px 40px 1fr auto auto;
     padding-top:    13px;
     padding-bottom: 13px;
 }
 
-/* ── Record-type badge ──────────────────────────────────────────────────── */
-/* Inline next to the record reference, styled like hm_spec_badge but with
-   a harder, more brutalist rectangular border instead of a pill.          */
 .hm_rec_type_badge {
     display:        inline-block;
     vertical-align: middle;
@@ -659,24 +650,18 @@
     white-space:    nowrap;
 }
 
-/* ── Status tag variants (extend the base .hm_tag defined in              ──
-   navigation_dashboard.css)                                               */
-
-/* Draft — amber / warm warning tone */
 .hm_tag--draft {
     background:  transparent;
     color:       #946800 !important;
     border-color:#946800 !important;
 }
 
-/* Archived — muted slate, lower visual weight than confirmed/draft */
 .hm_tag--arc {
     background:  transparent;
     color:       #5a6270 !important;
     border-color:#5a6270 !important;
 }
 
-/* ── Responsive tweaks ─────────────────────────────────────────────────── */
 @media (max-width: 800px) {
     .hm_row.hm_row--record {
         grid-template-columns: 32px 32px 1fr auto auto;
@@ -685,14 +670,10 @@
     }
 
     .hm_rec_type_badge {
-        display: none; /* hide type badge on small screens; shown in desc line */
+        display: none;
     }
 }
-/* ══════════════════════════════════════════════════════════════════════════
-   Medical Record Form — Swiss Brutalism
-   ══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Title / Reference ─────────────────────────────────────────────────── */
 .hm_record_form .oe_title h1,
 .hm_record_form .oe_title h1 .o_field_widget,
 .hm_record_form .oe_title h1 .o_field_widget span,
@@ -713,7 +694,6 @@
     letter-spacing: 0.01em;
 }
 
-/* ── Section separators ────────────────────────────────────────────────── */
 .hm_record_form .o_horizontal_separator {
     font-family:    monospace !important;
     font-size:      0.65rem !important;
@@ -728,7 +708,6 @@
     margin-bottom:  18px !important;
 }
 
-/* ── Clinical text areas ───────────────────────────────────────────────── */
 .hm_record_form .o_field_text textarea {
     border:         2px solid #1a1a2e !important;
     border-radius:  0 !important;
@@ -755,7 +734,6 @@
     font-style:  italic !important;
 }
 
-/* ── Vital Sign Grid ───────────────────────────────────────────────────── */
 .hm_vitals_grid {
     display:               grid;
     grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
@@ -827,10 +805,9 @@
     color:       #1a1a2e;
     font-size:   1rem;
     flex-shrink: 0;
-    margin-top:  12px; /* align with input row, below the MIN/MAX label */
+    margin-top:  12px;
 }
 
-/* Float inputs inside vital blocks */
 .hm_vital_minmax .o_field_widget input.o_input {
     border:        1.5px solid #1a1a2e !important;
     border-radius: 0 !important;
@@ -851,7 +828,6 @@
     outline:      none !important;
 }
 
-/* ── Notebook: Measurements list ───────────────────────────────────────── */
 .hm_record_form .o_notebook .nav-link {
     font-family:    monospace;
     font-size:      0.7rem;
@@ -895,14 +871,12 @@
     letter-spacing: 0.02em;
 }
 
-/* ── Confirmed state tag ───────────────────────────────────────────────── */
 .hm_tag--conf {
     background:  transparent;
     color:       #1a7a38 !important;
     border-color:#1a7a38 !important;
 }
 
-/* ── Responsive ────────────────────────────────────────────────────────── */
 @media (max-width: 800px) {
     .hm_vitals_grid {
         grid-template-columns: 1fr 1fr;
@@ -922,7 +896,6 @@
     }
 }
 
-/* ── Medical Record form: full-width sheet (no dead space right of scrollbar) */
 .hm_record_form {
     --o-form-sheet-max-width: 100% !important;
 }
