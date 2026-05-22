@@ -36,7 +36,7 @@
     <menuitem id="menu_patient_monitoring_alerts"
         name="Alerts"
         parent="menu_patient_monitoring_root"
-        action="action_alerts_dashboard"
+        action="action_alert"
         sequence="40"
         groups="health_monitoring.group_medical_staff,health_monitoring.group_admin"/>
 

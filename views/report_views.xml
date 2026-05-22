@@ -31,7 +31,7 @@
                                 <table class="table table-sm">
                                     <tr><td><strong>Date:</strong></td><td><t t-out="doc.date"/></td></tr>
                                     <tr><td><strong>Type:</strong></td><td><t t-out="doc.record_type"/></td></tr>
-                                    <tr><td><strong>Attending Staff:</strong></td><td><t t-out="doc.attending_staff_id.name or 'N/A'"/></td></tr>
+                                    <tr><td><strong>Attending Staff:</strong></td><td><t t-out="doc.drafting_staff_id.name or 'N/A'"/></td></tr>
                                     <tr><td><strong>Status:</strong></td><td><t t-out="doc.state"/></td></tr>
                                 </table>
                             </div>
@@ -175,61 +175,12 @@
                                         </tr>
                                         <tr>
                                             <td style="background:#F8FAFF;"><strong>Attending Staff</strong></td>
-                                            <td><t t-out="rec.attending_staff_id.name or '—'"/></td>
+                                            <td><t t-out="rec.drafting_staff_id.name or '—'"/></td>
                                             <td style="background:#F8FAFF;"><strong>Status</strong></td>
                                             <td><t t-out="rec.state"/></td>
                                         </tr>
                                     </tbody>
                                 </table>
-
-                                <t t-set="has_thresholds" t-value="
-                                    rec.min_heart_rate or rec.max_heart_rate or
-                                    rec.min_pulse or rec.max_pulse or
-                                    rec.min_oxygen_saturation or rec.max_oxygen_saturation or
-                                    rec.min_respiratory_rate or rec.max_respiratory_rate or
-                                    rec.min_temperature or rec.max_temperature
-                                "/>
-                                <t t-if="has_thresholds">
-                                    <p style="font-size: 11px; font-weight: 600; color: #374151; margin: 8px 0 4px;">
-                                        Vital Sign Thresholds
-                                    </p>
-                                    <table class="table table-sm table-bordered" style="font-size: 10.5px;">
-                                        <thead>
-                                            <tr style="background:#EFF6FF;">
-                                                <th style="width:50%;">Vital Sign</th>
-                                                <th style="width:25%;">Min</th>
-                                                <th style="width:25%;">Max</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr t-if="rec.min_heart_rate or rec.max_heart_rate">
-                                                <td>Heart Rate (bpm)</td>
-                                                <td><t t-out="rec.min_heart_rate or '—'"/></td>
-                                                <td><t t-out="rec.max_heart_rate or '—'"/></td>
-                                            </tr>
-                                            <tr t-if="rec.min_pulse or rec.max_pulse">
-                                                <td>Pulse (bpm)</td>
-                                                <td><t t-out="rec.min_pulse or '—'"/></td>
-                                                <td><t t-out="rec.max_pulse or '—'"/></td>
-                                            </tr>
-                                            <tr t-if="rec.min_oxygen_saturation or rec.max_oxygen_saturation">
-                                                <td>O2 Saturation (%)</td>
-                                                <td><t t-out="rec.min_oxygen_saturation or '—'"/></td>
-                                                <td><t t-out="rec.max_oxygen_saturation or '—'"/></td>
-                                            </tr>
-                                            <tr t-if="rec.min_respiratory_rate or rec.max_respiratory_rate">
-                                                <td>Respiratory Rate (/min)</td>
-                                                <td><t t-out="rec.min_respiratory_rate or '—'"/></td>
-                                                <td><t t-out="rec.max_respiratory_rate or '—'"/></td>
-                                            </tr>
-                                            <tr t-if="rec.min_temperature or rec.max_temperature">
-                                                <td>Temperature (°C)</td>
-                                                <td><t t-out="rec.min_temperature or '—'"/></td>
-                                                <td><t t-out="rec.max_temperature or '—'"/></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </t>
 
                                 <div t-if="rec.diagnosis" style="margin-top: 8px; font-size: 11px;">
                                     <strong>Diagnosis:</strong>

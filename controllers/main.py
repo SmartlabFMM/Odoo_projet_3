@@ -1,7 +1,7 @@
 import logging
 
 from odoo import http
-from odoo.http import request
+from odoo.http import request, Response
 
 _logger = logging.getLogger(__name__)
 
@@ -213,3 +213,29 @@ class PatientMonitoringController(http.Controller):
             'success':    True,
             'staff_name': staff.name,
         }
+
+    @http.route(
+        '/patient_monitoring/report/print/<int:wizard_id>',
+        type='http', auth='user', methods=['GET'],
+    )
+    def print_report(self, wizard_id, **kwargs):
+        wizard = request.env['patient.monitoring.report.wizard'].browse(wizard_id)
+        if not wizard.exists():
+            return Response('Report not found', status=404)
+
+        report = request.env['ir.actions.report'].sudo().search([
+            ('report_name', '=', 'health_monitoring.report_patient_monitoring')
+        ], limit=1)
+
+        html, _ = report.with_context(
+            request.env.context
+        )._render_qweb_html(
+            'health_monitoring.report_patient_monitoring',
+            [wizard_id],
+        )
+
+        html_str = html.decode('utf-8') if isinstance(html, bytes) else html
+        print_script = '<script>window.onload = function(){ window.print(); };</script>'
+        html_str = html_str.replace('</head>', print_script + '</head>', 1)
+
+        return Response(html_str, content_type='text/html; charset=utf-8')

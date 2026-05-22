@@ -136,30 +136,6 @@ class PatientReportWizard(models.TransientModel):
         )
         ax.fill_between(dates, values, alpha=0.08, color=color)
 
-        record = self.medical_record_id
-        if not record:
-            record = self.env['patient.monitoring.medical.record'].search(
-                [('patient_id', '=', self.patient_id.id)],
-                order='date desc', limit=1
-            )
-        if record:
-            min_field = f'min_{vital_sign}'
-            max_field = f'max_{vital_sign}'
-            min_val = getattr(record, min_field, None)
-            max_val = getattr(record, max_field, None)
-            if min_val:
-                ax.axhline(
-                    min_val, linestyle='--', linewidth=0.9,
-                    color='#F97316', alpha=0.7, label=f'Min ({min_val})'
-                )
-            if max_val:
-                ax.axhline(
-                    max_val, linestyle='--', linewidth=0.9,
-                    color='#EF4444', alpha=0.7, label=f'Max ({max_val})'
-                )
-            if min_val or max_val:
-                ax.legend(fontsize=7, loc='upper right')
-
         ax.set_ylabel(label, fontsize=8)
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
         ax.xaxis.set_major_locator(mdates.AutoDateLocator(minticks=4, maxticks=10))
@@ -250,4 +226,9 @@ class PatientReportWizard(models.TransientModel):
         ).report_action(self)
 
     def action_print(self):
-        return self.action_export_pdf()
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/patient_monitoring/report/print/{self.id}',
+            'target': 'new',
+        }
