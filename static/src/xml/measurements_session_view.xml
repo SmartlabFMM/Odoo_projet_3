@@ -6,17 +6,27 @@
             <div class="ms-toolbar d-flex align-items-center gap-3 px-4 py-3">
                 <span class="ms-toolbar-title">Measurements</span>
 
-                <div class="ms-patient-filter d-flex align-items-center gap-2 ms-auto"
-                     t-if="!state.patientLocked">
-                    <i class="fa fa-user-circle text-muted"/>
-                    <select class="form-select form-select-sm ms-select"
-                            t-on-change="onPatientChange">
-                        <option value="">All Patients</option>
-                        <t t-foreach="state.patients" t-as="p" t-key="p.id">
-                            <option t-att-value="p.id" t-esc="p.name"
-                                    t-att-selected="state.selectedPatientId === p.id"/>
-                        </t>
-                    </select>
+                <div class="d-flex align-items-center gap-3 ms-auto">
+                    <button class="ms-live-btn d-flex align-items-center gap-2"
+                            t-on-click="toggleLive"
+                            t-att-class="state.isLive ? 'ms-live-btn--active' : ''">
+                        <span t-if="state.isLive" class="ms-live-dot hm_live_ring"/>
+                        <span t-else="" class="ms-live-dot ms-live-dot--off"/>
+                        <span t-esc="state.isLive ? 'LIVE' : 'PAUSED'"/>
+                    </button>
+
+                    <div class="ms-patient-filter d-flex align-items-center gap-2"
+                         t-if="!state.patientLocked">
+                        <i class="fa fa-user-circle text-muted"/>
+                        <select class="form-select form-select-sm ms-select"
+                                t-on-change="onPatientChange">
+                            <option value="">All Patients</option>
+                            <t t-foreach="state.patients" t-as="p" t-key="p.id">
+                                <option t-att-value="p.id" t-esc="p.name"
+                                        t-att-selected="state.selectedPatientId === p.id"/>
+                            </t>
+                        </select>
+                    </div>
                 </div>
             </div>
 

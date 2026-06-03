@@ -35,29 +35,31 @@
 
             <main class="hm_list">
 
-                <div class="hm_row"
-                     t-on-click="openMedicalStaff"
-                     role="button"
-                     tabindex="0"
-                     t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openMedicalStaff()">
-                    <span class="hm_row_idx">01</span>
-                    <div class="hm_row_content">
-                        <span class="hm_row_title">Medical Staff</span>
-                        <span class="hm_row_desc">Manage profiles, roles, Telegram alert channels, and patient assignments.</span>
+                <t t-if="state.canSeeStaff">
+                    <div class="hm_row"
+                         t-on-click="openMedicalStaff"
+                         role="button"
+                         tabindex="0"
+                         t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openMedicalStaff()">
+                        <span class="hm_row_idx">01</span>
+                        <div class="hm_row_content">
+                            <span class="hm_row_title">Medical Staff</span>
+                            <span class="hm_row_desc">Manage profiles, roles, Telegram alert channels, and patient assignments.</span>
+                        </div>
+                        <span class="hm_row_arrow">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5 12h14M13 6l6 6-6 6"/>
+                            </svg>
+                        </span>
                     </div>
-                    <span class="hm_row_arrow">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M5 12h14M13 6l6 6-6 6"/>
-                        </svg>
-                    </span>
-                </div>
+                </t>
 
                 <div class="hm_row"
                      t-on-click="openPatients"
                      role="button"
                      tabindex="0"
                      t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openPatients()">
-                    <span class="hm_row_idx">02</span>
+                    <span class="hm_row_idx" t-esc="state.canSeeStaff ? '02' : '01'"/>
                     <div class="hm_row_content">
                         <span class="hm_row_title">Patients</span>
                         <span class="hm_row_desc">View and manage patient profiles, stream status, and assigned medical staff.</span>
@@ -74,7 +76,7 @@
                      role="button"
                      tabindex="0"
                      t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openMedicalRecords()">
-                    <span class="hm_row_idx">03</span>
+                    <span class="hm_row_idx" t-esc="state.canSeeStaff ? '03' : '02'"/>
                     <div class="hm_row_content">
                         <span class="hm_row_title">Medical Records</span>
                         <span class="hm_row_desc">Access diagnoses, treatment plans, prescriptions, and clinical notes.</span>
@@ -86,13 +88,12 @@
                     </span>
                 </div>
 
-                <!-- Reports -->
                 <div class="hm_row"
                      t-on-click="openReports"
                      role="button"
                      tabindex="0"
                      t-on-keydown="(ev) => ev.key === 'Enter' &amp;&amp; openReports()">
-                    <span class="hm_row_idx">04</span>
+                    <span class="hm_row_idx" t-esc="state.canSeeStaff ? '04' : '03'"/>
                     <div class="hm_row_content">
                         <span class="hm_row_title">Reports</span>
                         <span class="hm_row_desc">Generate and export PDF or Excel reports for patients and medical records.</span>

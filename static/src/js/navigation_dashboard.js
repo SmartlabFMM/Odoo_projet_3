@@ -3,6 +3,7 @@
 import { Component, onMounted, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { user } from "@web/core/user";
 
 class NavigationDashboard extends Component {
     static template = "health_monitoring.NavigationDashboard";
@@ -17,6 +18,7 @@ class NavigationDashboard extends Component {
             staffCount:   0,
             liveCount:    0,
             loaded:       false,
+            canSeeStaff:  false,
         });
 
         onMounted(async () => {
@@ -47,6 +49,14 @@ class NavigationDashboard extends Component {
             );
         } catch (e) {
             console.error("[NavigationDashboard] liveCount failed:", e);
+        }
+
+        try {
+            const isAdmin  = await user.hasGroup("health_monitoring.group_admin");
+            const isSystem = await user.hasGroup("base.group_system");
+            this.state.canSeeStaff = isAdmin || isSystem;
+        } catch (e) {
+            console.error("[NavigationDashboard] group check failed:", e);
         }
 
         this.state.loaded = true;

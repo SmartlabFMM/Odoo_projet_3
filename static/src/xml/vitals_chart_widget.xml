@@ -15,15 +15,29 @@
                 <t t-foreach="state.sessions" t-as="session" t-key="session.session_id">
                     <div class="vitals-session-block mb-4">
 
-                        <!-- Session header -->
+                        <!--
+                            Session header — shows a pulsing STREAMING badge on the
+                            newest session while the linked patient is online.
+                            state.isLive is set automatically by reading
+                            patient.stream_running (no manual toggle).
+                        -->
                         <div class="vitals-session-header d-flex align-items-center gap-2 mb-2 px-1">
                             <span class="vitals-session-badge"
                                   t-attf-style="background: rgb({{session.color}}); color: #fff;">
                                 Session <t t-esc="session.index + 1"/>
                             </span>
                             <small class="text-muted" t-esc="session.label"/>
+
+                            <t t-if="session_first and state.isLive">
+                                <small class="d-flex align-items-center gap-1 ms-1"
+                                       style="font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #888;">
+                                    <span class="ms-live-dot hm_live_ring"/>
+                                    STREAMING
+                                </small>
+                            </t>
                         </div>
 
+                        <!-- Chart grid — canvas IDs: vchart-{index}-{vital.key} -->
                         <div class="row g-2">
                             <t t-foreach="vitals" t-as="vital" t-key="vital.key">
                                 <div class="col-12 col-md-6 col-xl-4">

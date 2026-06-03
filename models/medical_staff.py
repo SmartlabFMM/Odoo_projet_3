@@ -177,24 +177,15 @@ class MedicalStaff(models.Model):
 
     @api.onchange('user_id')
     def _onchange_user_id(self):
-        """Pre-fill contact fields from the linked user when selected."""
         if self.user_id:
             if not self.name:
                 self.name  = self.user_id.name
             if not self.email:
                 self.email = self.user_id.email or ''
             if not self.phone:
-                self.phone = (
-                    self.user_id.partner_id.phone or
-                    self.user_id.partner_id.mobile or ''
-                )
+                self.phone = self.user_id.partner_id.phone or ''
 
     def action_view_patients(self):
-        """
-        Open the styled Patient Dashboard filtered to this staff member's
-        patients.  The dashboard reads `staff_id` / `staff_name` from the
-        action context and applies the appropriate domain filter.
-        """
         self.ensure_one()
         return {
             'type':    'ir.actions.client',
@@ -227,28 +218,3 @@ class MedicalStaff(models.Model):
         ('employee_id_unique', 'unique(employee_id)', 'Employee ID must be unique.'),
         ('user_id_unique',     'unique(user_id)',     'This user already has a staff profile.'),
     ]
-
-    @api.constrains('user_id')
-    def _check_user_has_staff_role(self):
-        """
-        Guard against manually linking a user who doesn't have the Medical Staff
-        role. Skipped during automatic sync from res.users (context flag
-        'skip_group_check' is set by _sync_medical_staff_records) because the
-        sync already verifies group membership before calling create().
-        """
-        if self.env.context.get('skip_group_check'):
-            return
-
-        medical_staff_group = self.env.ref(
-            'health_monitoring.group_medical_staff',
-            raise_if_not_found=False,
-        )
-        if not medical_staff_group:
-            return
-
-        for rec in self:
-            if rec.user_id and medical_staff_group not in rec.user_id.groups_id:
-                raise ValidationError(
-                    f'"{rec.user_id.name}" does not have the Medical Staff role. '
-                    'Assign the role first — the staff profile will then be created automatically.'
-                )

@@ -28,6 +28,8 @@ const FIELDS = [
     "stream_session_id", "patient_id", "has_anomaly",
 ];
 
+const POLL_INTERVAL_MS = 5000;
+
 function groupBySessions(records) {
     const map = new Map();
     for (const m of records) {
@@ -69,15 +71,25 @@ class MeasurementsSessionView extends Component {
 
         const context = this.props.action?.context || {};
 
-        this.state  = useState({
+        const rawPid      = context.patient_id;
+        const resolvedPid = Array.isArray(rawPid)
+            ? rawPid[0]
+            : (rawPid && typeof rawPid === "object" ? rawPid.id : rawPid) || null;
+
+        this.state = useState({
             patients:          [],
-            selectedPatientId: context.patient_id || null,
-            patientLocked:     !!context.patient_id,
+            selectedPatientId: resolvedPid ? parseInt(resolvedPid) : null,
+            patientLocked:     !!resolvedPid,
             sessions:          [],
             loaded:            false,
             patientsLoaded:    false,
+            isLive:            false,
         });
-        this._charts = {};
+
+        this._charts       = {};
+        this._allRecords   = [];
+        this._lastFetchTime = null;
+        this._pollTimer    = null;
 
         onMounted(async () => {
             await loadJS(
@@ -87,7 +99,32 @@ class MeasurementsSessionView extends Component {
             await this._loadMeasurements();
         });
 
-        onWillUnmount(() => this._destroyCharts());
+        onWillUnmount(() => {
+            this._stopPolling();
+            this._destroyCharts();
+        });
+    }
+
+    _startPolling() {
+        this._stopPolling();
+        this.state.isLive = true;
+        this._pollTimer   = setInterval(() => this._pollNewMeasurements(), POLL_INTERVAL_MS);
+    }
+
+    _stopPolling() {
+        if (this._pollTimer) {
+            clearInterval(this._pollTimer);
+            this._pollTimer = null;
+        }
+        this.state.isLive = false;
+    }
+
+    toggleLive() {
+        if (this.state.isLive) {
+            this._stopPolling();
+        } else {
+            this._startPolling();
+        }
     }
 
     async _loadPatients() {
@@ -102,9 +139,11 @@ class MeasurementsSessionView extends Component {
     }
 
     async _loadMeasurements() {
+        this._stopPolling();
         this._destroyCharts();
-        this.state.loaded    = false;
-        this.state.sessions  = [];
+        this.state.loaded   = false;
+        this.state.sessions = [];
+        this._allRecords    = [];
 
         const domain = this.state.selectedPatientId
             ? [["patient_id", "=", this.state.selectedPatientId]]
@@ -117,10 +156,87 @@ class MeasurementsSessionView extends Component {
             { order: "measurement_date asc" }
         );
 
-        this.state.sessions = groupBySessions(rows);
+        this._allRecords    = rows;
+        this._lastFetchTime = rows.length
+            ? rows[rows.length - 1].measurement_date
+            : new Date().toISOString().replace("T", " ").slice(0, 19);
+
+        this.state.sessions = groupBySessions(this._allRecords);
         this.state.loaded   = true;
 
-        setTimeout(() => this._buildCharts(), 50);
+        setTimeout(() => {
+            this._buildCharts();
+            this._startPolling();
+        }, 50);
+    }
+
+    async _pollNewMeasurements() {
+        const domain = [];
+        if (this.state.selectedPatientId) {
+            domain.push(["patient_id", "=", this.state.selectedPatientId]);
+        }
+        if (this._lastFetchTime) {
+            domain.push(["measurement_date", ">", this._lastFetchTime]);
+        }
+
+        let newRows;
+        try {
+            newRows = await this.orm.searchRead(
+                "patient.monitoring.measurement",
+                domain,
+                FIELDS,
+                { order: "measurement_date asc" }
+            );
+        } catch (_) {
+            return;
+        }
+
+        if (!newRows.length) return;
+
+        this._lastFetchTime = newRows[newRows.length - 1].measurement_date;
+        this._allRecords    = [...this._allRecords, ...newRows];
+
+        const existingIds  = new Set(this.state.sessions.map((s) => s.session_id));
+        const hasNewSession = newRows.some((r) => {
+            const sid = r.stream_session_id || "__untracked__";
+            return !existingIds.has(sid);
+        });
+
+        if (hasNewSession) {
+            this.state.sessions = groupBySessions(this._allRecords);
+            setTimeout(() => this._buildCharts(), 50);
+        } else {
+            this._appendDataToCharts(newRows);
+        }
+    }
+
+    _appendDataToCharts(newRows) {
+        for (const session of this.state.sessions) {
+            const sessionRows = newRows.filter(
+                (r) => (r.stream_session_id || "__untracked__") === session.session_id
+            );
+            if (!sessionRows.length) continue;
+
+            for (const vital of VITALS) {
+                const chartKey = `${session.index}-${vital.key}`;
+                const chart    = this._charts[chartKey];
+                if (!chart) continue;
+
+                let updated = false;
+                for (const m of sessionRows) {
+                    if (m[vital.key] > 0) {
+                        chart.data.datasets[0].data.push({
+                            x: new Date(m.measurement_date).toLocaleTimeString([], {
+                                hour: "2-digit", minute: "2-digit", second: "2-digit",
+                            }),
+                            y: m[vital.key],
+                        });
+                        updated = true;
+                    }
+                }
+                if (updated) chart.update("none");
+            }
+        }
     }
 
     async onPatientChange(ev) {
